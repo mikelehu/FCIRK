@@ -1,7 +1,13 @@
 # FCIRK: Flow-Composed Implicit Runge-Kutta Method
 # Date: 2019/07/12
 
-Content
+
+Flow Composed Implicit Runge-Method (FCIRK) implementation is developed in C-programming language and the integration method is interfaced via Jupyter/Julia powerful computational enviroment.
+
+Related article: Article: "New Integration Methods for Perturbed ODEs Based on Symplectic Implicit Runge–Kutta Schemes with Application to Solar System   Simulations" (Journal of Scientific Computing 2018)".
+
+
+Content description
 
   Documentation
 
