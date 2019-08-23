@@ -30,7 +30,7 @@ Related article: Article: "New Integration Methods for Perturbed ODEs Based on S
 ##  Examples/16-Body (Jupyter Notebooks)
         
 	1-Experiment (FCIRK-S8LQ h=3)
-	2-Experiment (Efficiencuy)
+	2-Experiment (Efficiency)
 
 
 #  Requirements
