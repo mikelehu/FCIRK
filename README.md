@@ -43,6 +43,16 @@ The current version of FCIRK software has been designed to work in Linux.
 
 You will probably have to install a variety of packages which aren't normally installed.
 
+#  Requirements
+
+The current version of FCIRK software has been designed to work in Linux.
+
+* Requires Ubuntu 12.04 or later.
+* 64-bit systems have been tested successfully.
+* You will need the normal gcc C/C++ compiler toolchain.
+
+You will probably have to install a variety of packages which aren't normally installed.
+
 
 # Endnotes
 
