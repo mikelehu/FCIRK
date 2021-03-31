@@ -48,9 +48,9 @@ all :
 # PARALLEL: Active opem-mp parallel execution
 # IOUT :    Active result in a file 
 #-D DEBUG:  Active general debug
-
+# NODEBUG
 %.o: %.c def.h
-	${CC} -D NODEBUG -D IOUT -D PREC=$(MYPREC) -D PARALLEL -D MPFR_WANT_FLOAT128 -fPIC ${FLAGS} ${OMP_FLAGS} -c -I./  $<
+	${CC} -D ESTDEBUG -D IOUT -D PREC=$(MYPREC) -D PARALLEL -D MPFR_WANT_FLOAT128 -fPIC ${FLAGS} ${OMP_FLAGS} -c -I./  $<
 
 # PREC=2: double-quad;
 double-FCIRK : MYPREC := 2

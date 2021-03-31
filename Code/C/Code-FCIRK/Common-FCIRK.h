@@ -21,43 +21,114 @@
 
 
 void InitStat
-( ode_sys *system, gauss_method *gsmethod, solver_stat *thestatptr
+(ode_sys *system, tcoeffs *gsmethod,
+ tcache_stat *cache_stat, tcache_vars *cache_vars
 );
+
+
+void InitStat_high
+(ode_sys_high *system, tcoeffs_h *gsmethod,
+ tcache_vars_high *cache_vars
+);
+
 
 val_type NormalizedDistance
 ( int neq, int ns, toptions *options,
   val_type *z, val_type *zold
 );
 
+val_type NormalizedDistance_high
+( int neq, int ns,
+  toptions *options,  highprec *z,
+  highprec *zold
+);
 
-void Fixed_point_Step
+void IRKstep_fixed
 ( ode_sys *system,   solution *u,
-  val_type tn,  val_type h,
-  toptions *options,  gauss_method *method,
- solver_stat *thestatptr
+  val_type tn,  int ii,val_type h,
+  toptions *options,  tcoeffs *method,
+  tcache_stat *cache_stat, tcache_vars *cache_vars
 );
 
-int General_FP_It			
+void IRKstep_fixed_high
+( ode_sys_high *system,  solution *u,
+  highprec tn, int ii, highprec h,
+  toptions *options,  tcoeffs_h *method,
+  tcache_stat *cache_stat, tcache_vars_high *cache_vars
+);
+
+
+void IRKstep_adaptive
+(tode_sys *ode_system, solution *u,
+ val_type tn, int ii, val_type h,
+ toptions *options,  tmethod *method, 
+ tcache_stat *cache_stat, 
+ tcache_vars *cache_vars, tcache_vars_high *cache_vars_high
+);
+
+
+int FP_Iteration			
 ( ode_sys *system,  solution *u,  val_type tn,
-  val_type h,  gauss_method *method,
-  solver_stat *thestatptr,
-  int *D0, bool *iter0, val_type *DMin
+  int ii, val_type h,  tcoeffs *method,
+  tcache_stat *cache_stat, tcache_vars *cache_vars,
+  int *D0, bool *iter0
 );
 
+int FP_Iteration_high
+( ode_sys_high *system,  solution *u,  highprec tn,
+  int ii, highprec h,  tcoeffs_h *method,
+  tcache_stat *cache_stat, tcache_vars_high *cache_vars,
+  int *D0, bool *iter0
+);
 
 void Summation
-( gauss_method *gsmethod,
- solution *u,
+( tcoeffs *gsmethod,
+  solution *u,
   ode_sys *system,  toptions *options,
-  solver_stat *thestatptr
+  tcache_vars *cache_vars
 );
 
 
-void Main_FCIRK            
-(val_type t0, val_type t1, val_type h,
-  gauss_method *gsmethod, solution *u,
-  ode_sys *system, toptions *options,
- solver_stat *thestatptr
+void Summation_high
+( tcoeffs_h *gsmethod,
+  solution *u, ode_sys_high *system,
+  toptions *options, tcache_vars_high *cache_vars
 );
+
+
+void deltafun
+( tcoeffs *gsmethod, ode_sys *system,
+  tcache_vars *cache_vars, val_type *delta
+);
+
+bool Ordinary_stepQ 
+( ode_sys *system,
+  val_type h,
+  int k,
+  tcache_stat *cache_stat, 
+  tcache_vars *cache_vars
+);
+
+int Num_steps 
+( tcoeffs *gsmethod,
+  ode_sys *system,
+  tcache_stat *cache_stat,
+  tcache_vars *cache_vars
+);
+
+
+void Main_FCIRK
+( val_type t0, val_type t1, val_type h, 
+  tmethod *method, solution *u, 
+  tode_sys *ode_system, toptions *options,
+  tcache *cache
+);
+
+
+
+
+
+
+
 
 

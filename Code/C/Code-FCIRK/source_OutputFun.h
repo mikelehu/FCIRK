@@ -11,20 +11,6 @@
      neq=system->neq;
 
      Pkepler_sys *Pkepler;
-     solution ux;
-
-     ux.uu = (highprec *)malloc((neq)*sizeof(highprec)); 
-     ux.uul = (val_type *)malloc((neq)*sizeof(val_type)); 
-     double DH;
-     int i;
-
-     struct rec
-     {
-       __float128 t;
-       __float128 uu[neq];
-     };
-
-     struct rec my_record;
 
 
 /* ----- Implementation ------------------------------------------------------*/
@@ -32,28 +18,42 @@
 
      Pkepler=&params->Pkepler;
 
-     if (((thestatptr->stepcount % options->sampling) == 0) || (thestatptr->laststep))
+     if (((cache_stat->stepcount % options->sampling) == 0) || (cache_stat->laststep))
      {
+          
+            solution ux;
+            ux.uu = (highprec *)malloc((neq)*sizeof(highprec)); 
+            ux.uul = (val_type *)malloc((neq)*sizeof(val_type)); 
+            double DH;
+            int i;
 
-           thestatptr->nout++;
+            struct rec
+            {
+             __float128 t;
+            __float128 uu[neq];
+            };
 
+           struct rec my_record;
+
+           cache_stat->nout++;
+  
            for(i=0; i<neq; i++)
            {
             ux.uu[i]=w->uu[i];
             ux.uul[i]=w->uul[i];
            }
       
-           if(thestatptr->stepcount==0)
+           if(cache_stat->stepcount==0)
            {
 
                DH=0.;
-               thestatptr->E0=system->ham(neq,&ux,params);
+               cache_stat->E0=system->ham(neq,&ux,params);
 #ifdef DEBUG
                int n;
                int width = 46;
                char buf[128];
                printf("NS=%i,Initial energy: ",method->ns);
-               n = quadmath_snprintf(buf, sizeof buf, "%+-#*.36Qe", width, thestatptr->E0);
+               n = quadmath_snprintf(buf, sizeof buf, "%+-#*.36Qe", width, cache_stat->E0);
                if ((size_t) n < sizeof buf) printf("%s\n",buf);
 #endif
           }
@@ -64,15 +64,15 @@
 #else
                KeplerFlowAll_high (neq,Pkepler->keplerkop,&ux,-h/2,params);
 #endif
-               DH=(system->ham(neq,&ux,params)-thestatptr->E0)/thestatptr->E0;
-               if (FABS(DH)>thestatptr->MaxDE) thestatptr->MaxDE=FABS(DH);
+               DH=(system->ham(neq,&ux,params)-cache_stat->E0)/cache_stat->E0;
+               if (FABS(DH)>cache_stat->MaxDE) cache_stat->MaxDE=FABS(DH);
           }
 
 
 #ifdef DEBUG
          double aux;
          aux=t;
-         printf("%i,%lg,%i, %lg\n",thestatptr->stepcount,aux,thestatptr->itcount,DH);
+         printf("%i,%lg,%i, %lg\n",cache_stat->stepcount,aux,cache_stat->itcount,DH);
 #endif
 
          my_record.t=t;
@@ -99,11 +99,13 @@
 
 #        endif
 
+
+        free(ux.uu);
+        free(ux.uul);
+
      }
 
 
-     free(ux.uu);
-     free(ux.uul);
 
      return;
 

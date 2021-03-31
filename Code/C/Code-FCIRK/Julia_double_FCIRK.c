@@ -34,8 +34,10 @@ int doubleFCIRK (int Nkepler,int Moreq,
                  int *ipar,int ilen,
                  const char *myfilename,
                  int sampling,
-                 int codfun,
+                 int ode,
                  int threads,
+                 bool adaptive,
+                 bool mixed,
                  double *result_array)
 
 {

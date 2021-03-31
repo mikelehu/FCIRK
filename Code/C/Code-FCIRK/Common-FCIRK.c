@@ -5,9 +5,12 @@
 /*	Functions: 							      */
 /*	 InitStat()							      */
 /*	 NormalizedDistance()						      */
-/*	 Fixed_point_Step()						      */
-/*	 General_FP_It()						      */
+/*	 IRKstep_fixed()						      */
+/*	 FP_Iteration()		         				      */
 /*	 Summation()							      */
+/*       deltafun	                                                      */
+/*       Ordinary_stepQ                                                       */
+/*       Num_steps                                                            */
 /*	 Main_FCIRK()							      */
 /*       								      */
 /* ---------------------------------------------------------------------------*/
@@ -15,6 +18,8 @@
 
 #include <Common-FCIRK.h>
 #include <float.h>
+
+FILE *myfile2;
 
 
 /******************************************************************************/
@@ -24,8 +29,8 @@
 /*									      */
 /******************************************************************************/
 
-void InitStat (ode_sys *system, gauss_method *gsmethod,
-               solver_stat *thestatptr)
+void InitStat (ode_sys *system, tcoeffs *gsmethod,
+               tcache_stat *cache_stat, tcache_vars *cache_vars )
 {
 
      int i,is,in,neq,ns;
@@ -33,36 +38,82 @@ void InitStat (ode_sys *system, gauss_method *gsmethod,
      ns=gsmethod->ns;
      neq=system->neq;
 
-     thestatptr->laststep = false;
-     thestatptr->stepcount = 0;
-     thestatptr->itcount=0;
-     thestatptr->totitcount=0;
-     thestatptr->totitcountzero=0;
-     thestatptr->maxitcount=0;
-     thestatptr->itzero=0;
-     thestatptr->fcn=0;
-     thestatptr->convergence=SUCCESS;
-     thestatptr->nout=0;
-     thestatptr->MaxDE=0.;
+     cache_stat->laststep = false;
+     cache_stat->stepcount = 0;
+     cache_stat->hstepcount = 0;
+     cache_stat->itcount=0;
+     cache_stat->totitcount=0;
+     cache_stat->totitcountzero=0;
+     cache_stat->maxitcount=0;
+     cache_stat->itzero=0;
+     cache_stat->fcn=0;
+     cache_stat->convergence=SUCCESS;
+     cache_stat->nout=0;
+     cache_stat->MaxDE=0.;
 
-     thestatptr->z = (val_type *)malloc(neq*(ns)*sizeof(val_type));
-     thestatptr->li = (val_type *)malloc(neq*ns*sizeof(val_type));
-     thestatptr->fz = (val_type *)malloc(neq*ns*sizeof(val_type));
-     thestatptr->zold = (val_type *)malloc(neq*ns*sizeof(val_type));
+     cache_vars->z = (val_type *)malloc(neq*(ns)*sizeof(val_type));
+     cache_vars->li = (val_type *)malloc(neq*ns*sizeof(val_type));
+     cache_vars->fz = (val_type *)malloc(neq*ns*sizeof(val_type));
+     cache_vars->zold = (val_type *)malloc(neq*ns*sizeof(val_type));
+     cache_vars->DMin = (val_type *)malloc(neq*ns*sizeof(val_type));
+     cache_vars->delta = (val_type *)malloc(neq*sizeof(val_type));
+     cache_vars->avg_delta = (val_type *)malloc(neq*sizeof(val_type));
 
      for (is=0; is<ns; is++)
      {
           in=is*neq;
           for (i=0; i<neq; i++)
           {
-               thestatptr->li[in+i]=0.;
-               thestatptr->fz[in+i]=0.;
+               cache_vars->li[in+i]=0.;
+               cache_vars->fz[in+i]=0.;
           }
      }
 
-     return;
+
+    return;
 
 }
+
+
+/******************************************************************************/
+/* 					   				      */
+/* InitStat_high	         	  				      */
+/*                                        				      */
+/*									      */
+/******************************************************************************/
+
+void InitStat_high (ode_sys_high *system, tcoeffs_h *coeffs,
+                    tcache_vars_high *cache_vars )
+{
+
+     int i,is,in,neq,ns;
+
+     ns=coeffs->ns;
+     neq=system->neq;
+
+     cache_vars->z = (highprec *)malloc(neq*(ns)*sizeof(highprec));
+     cache_vars->li = (highprec *)malloc(neq*ns*sizeof(highprec));
+     cache_vars->fz = (highprec *)malloc(neq*ns*sizeof(highprec));
+     cache_vars->zold = (highprec *)malloc(neq*ns*sizeof(highprec));
+     cache_vars->DMin = (highprec *)malloc(neq*ns*sizeof(highprec));
+
+
+     for (is=0; is<ns; is++)
+     {
+          in=is*neq;
+          for (i=0; i<neq; i++)
+          {
+               cache_vars->li[in+i]=0.;
+               cache_vars->fz[in+i]=0.;
+          }
+     }
+
+
+    return;
+
+}
+
+
 
 
 /******************************************************************************/
@@ -77,61 +128,78 @@ val_type NormalizedDistance ( int neq, int ns,
                               val_type *zold)
 {
 
+#define BASENORM val_type
+#define HIGHNORM 0
+#include <source_NormalizedDistance.h>
+#undef BASENORM
+#undef HIGHNORM
 
-/*---------------- Declarations ----------------------------------------------*/
+}
 
-     int i,is,ix;
-     val_type maxi,mayi,relerrors;
-     val_type maxz,maxzold;
 
-/* --------------- Implementation --------------------------------------------*/
+val_type NormalizedDistance_high ( int neq, int ns,
+                                   toptions *options,  highprec *z,
+                                   highprec *zold)
+{
 
-     maxi=0.;
+#define BASENORM highprec
+#define HIGHNORM 1
+#include <source_NormalizedDistance.h>
+#undef BASENORM
+#undef HIGHNORM
 
-     for (i=0; i<neq; i++)
-     {
-          maxz=0.;
-          maxzold=0.;
+}
 
-          for (is=0; is<ns;is++)
-          {
-               ix=neq*is+i;
-               maxz=FMAX(maxz,FABS(z[ix]));
-               maxzold=FMAX(maxzold,FABS(zold[ix]));
-          }
+/******************************************************************************/
+/* 									      */
+/*   IRKstep_fixed							      */
+/* 									      */
+/******************************************************************************/
 
-          mayi=(maxz+maxzold)/2;
-          relerrors=0.;
 
-          for (is=0; is<ns; is++)
-          {
-               ix=neq*is+i;
-               relerrors=FMAX(relerrors,
-                              FABS(z[ix]-zold[ix])/
-                                   (mayi*options->rtol[i]+options->atol[i]));
-          }
+void IRKstep_fixed         (  ode_sys *system,  solution *u,
+                              val_type tn, int ii, val_type h,
+                              toptions *options,  tcoeffs *method,
+                              tcache_stat *cache_stat, tcache_vars *cache_vars)
+{
 
-          maxi=FMAX(maxi,relerrors);
-
-     }
-
-     return maxi;
+#define BASEIST val_type
+#define HIGHIST 0
+#include <source_IRKstep_fixed.h>
+#undef BASEIST
+#undef HIGHIST
 
 }
 
 
 
+void IRKstep_fixed_high   (   ode_sys_high *system,  solution *u,
+                              highprec tn, int ii, highprec h,
+                              toptions *options,  tcoeffs_h *method,
+                              tcache_stat *cache_stat, tcache_vars_high *cache_vars)
+{
+
+#define BASEIST highprec
+#define HIGHIST 1
+#include <source_IRKstep_fixed.h>
+#undef BASEIST
+#undef HIGHIST
+
+}
+
+
 /******************************************************************************/
 /* 									      */
-/*   Fixed_point_Step							      */
+/*   IRKstep_adaptive							      */
 /* 									      */
 /******************************************************************************/
 
 
-void Fixed_point_Step      (  ode_sys *system,  solution *u,
-                              val_type tn,  val_type h,
-                              toptions *options,  gauss_method *method,
-                              solver_stat *thestatptr)
+void IRKstep_adaptive  (tode_sys *ode_system,solution *u, 
+                        val_type tn, int ii, val_type h,toptions *options,
+                        tmethod *method, 
+                        tcache_stat *cache_stat, 
+                        tcache_vars *cache_vars, tcache_vars_high *cache_vars_high)
 
 {
 
@@ -142,30 +210,87 @@ void Fixed_point_Step      (  ode_sys *system,  solution *u,
 /* ----- First initializations -----------------------------------------------*/
      int neq,ns;
 
-     neq=system->neq;
-     ns=method->ns;
+     neq=ode_system->system.neq;
+     ns=method->coeffs.ns;
 
 /*------ Declarations --------------------------------------------------------*/
 
-     int i,is,isn,in;
+     int i,is,isn,in,js,jsn,ism,ismi;
+     int k,ki;
      bool iter0;
      int D0;
      double difftest;
-     val_type DMin[neq*ns];
-     val_type *z,*zold,*fz,*li;
-     val_type *ttau;     
+     val_type *z,*zold,*fz,*li,*DMin,*coef;
+     val_type *ttau;    
+     val_type sum; 
      parameters *params;
+     Pkepler_sys *Pkepler;
+
+     highprec tj,hj;
 
 /* ----- Implementation ------------------------------------------------------*/
 
 
-     z=thestatptr->z;
-     zold=thestatptr->zold;
-     fz=thestatptr->fz;
-     li=thestatptr->li;
-     ttau=method->ttau;
+     z=cache_vars->z;
+     zold=cache_vars->zold;
+     fz=cache_vars->fz;
+     li=cache_vars->li;
+     DMin=cache_vars->DMin;
+     ttau=method->coeffs.ttau;
+     coef=method->coeffs.nu;
 
-     params=&system->params;
+     params=&ode_system->system.params;
+     Pkepler=&params->Pkepler;
+       
+
+/* --- Interpolation ---------------------------------------------------------*/
+
+
+     if (cache_stat->interpolate !=true)
+
+
+        for (is = 0; is<ns; is++)
+        {
+            in=is*neq;
+            for (i = 0; i<neq; i++) z[in+i]=u->uul[i];
+        }
+
+     else
+     {
+       for (is = 0; is<ns; is++)
+       {
+
+          in=is*neq;
+          KeplerFlowAll2 (neq,Pkepler->keplerkop,&z[in],h,params);
+
+          for (i = 0; i<neq; i++)
+          {
+              zold[in+i]=z[in+i];
+          }
+       }
+
+       for (is = 0; is<ns; is++)
+       {
+          in=is*neq;
+          for (i = 0; i<neq; i++)
+          {
+              sum=0.;
+              for (js = 0; js<ns; js++)
+              {
+                   jsn=(ns+1)*is+js;
+                   sum+=zold[neq*js+i]*(coef[jsn]);
+              }
+
+             jsn=(ns+1)*is+ns;
+             z[in+i]=sum+u->uul[i]*coef[jsn];
+
+          }
+       }
+     } 
+
+
+/*---- Fixed point iteration ------------------------------------------------*/
+
 
      iter0=true;
      D0=0;
@@ -179,51 +304,79 @@ void Fixed_point_Step      (  ode_sys *system,  solution *u,
           }
      }
 
-     thestatptr->itcount=0;
+     cache_stat->itcount=0;
+     ism=ii*ns;
 
 #ifdef PARALLEL
-#      pragma omp parallel for num_threads(thread_count) private(isn)
+#      pragma omp parallel for num_threads(thread_count) private(isn,ismi)
 #endif
      for (is = 0; is<ns; is++)
      {
            isn=neq*is;
-           thestatptr->fcn++;         
-           system->f(neq,tn+method->hc[is],ttau[is],&z[isn],&fz[isn],params);
-           for (i=0; i<neq; i++) li[isn+i]=fz[isn+i]*method->hb[is];
+           ismi=ism+is;
+           cache_stat->fcn++;         
+           ode_system->system.f(neq,tn+method->coeffs.hc[is],ttau[ismi],&z[isn],&fz[isn],params);
+           for (i=0; i<neq; i++) li[isn+i]=fz[isn+i]*method->coeffs.hb[is];
      }
 
-     thestatptr->itcount++;
+     cache_stat->itcount++;
 
-     while (iter0 && thestatptr->itcount<MAXIT)
+     while (iter0 && cache_stat->itcount<MAXIT)
      {
-           General_FP_It (system,u,tn,h,method,thestatptr,&D0, &iter0, DMin);      
-           thestatptr->itcount++;
+           FP_Iteration (&ode_system->system,u,tn,ii,h,&method->coeffs,cache_stat,cache_vars,&D0, &iter0);      
+           cache_stat->itcount++;
 
      }
 
 
-     if (thestatptr->itcount==MAXIT)
+     if (cache_stat->itcount==MAXIT)
      {
-           printf("Break: step(MAXIT)=%i\n",thestatptr->itcount);
-           thestatptr->convergence=FAIL;
+           printf("Break: step(MAXIT)=%i\n",cache_stat->itcount);
+           cache_stat->convergence=FAIL;
      }
+
 
      if (D0<(ns*neq))
      {
            difftest=NormalizedDistance(neq,ns,options,z,zold);
            if (difftest>1.)
            {
-                thestatptr->convergence=FAIL;
+                cache_stat->convergence=FAIL;
                 printf("Lack of convegence of Fixed point iteration:\
                         step=%i,iteration=%i,",
-                        thestatptr->stepcount,thestatptr->itcount);
+                        cache_stat->stepcount,cache_stat->itcount);
                 printf("difftest=%lg\n",difftest);
            }
      }
      else
      {
-           (thestatptr->totitcountzero)+=(thestatptr->itcount);
-           thestatptr->itzero++;
+          (cache_stat->totitcountzero)+=(cache_stat->itcount);
+          cache_stat->itzero++;
+   
+     }
+
+
+     if (cache_stat->convergence!=FAIL)
+     {
+           deltafun(&method->coeffs,&ode_system->system,cache_vars,&cache_vars->delta[0]);
+           k=Num_steps(&method->coeffs,&ode_system->system,cache_stat,cache_vars);
+           if (Ordinary_stepQ(&ode_system->system,h,k,cache_stat,cache_vars)==true)
+           {
+             Summation (&method->coeffs,u,&ode_system->system,options,cache_vars);
+           }
+           else
+           { 
+             cache_stat->hstepcount++;
+             hj=h/k;
+             AssignGsCoefficients_high(DIR_COEFF,&method->coeffs_h,hj,k);
+             UpdateGsCoefficients_high(&method->coeffs_h,hj,k);
+             cache_stat->interpolate=false;
+             for (ki=0; ki<k; ki++)
+             {
+                  tj=tn+ki*hj;   
+                  IRKstep_fixed_high (&ode_system->system_h,u,tj,ki,hj,options,&method->coeffs_h,cache_stat,cache_vars_high);                   
+             }
+           }    
      }
 
      return;
@@ -232,154 +385,40 @@ void Fixed_point_Step      (  ode_sys *system,  solution *u,
 
 
 
+
 /******************************************************************************/
 /*									      */
-/*      General_FP_It: General Fixed Point Iteration			      */
+/*      FP_Iteration: Fixed Point Iteration	         	      	      */
 /*									      */
 /******************************************************************************/
 
 
-int General_FP_It      ( ode_sys *system,  solution *u,  val_type tn,
-                         val_type h,  gauss_method *method,
-                         solver_stat *thestatptr,
-                         int *D0, bool *iter0, val_type *DMin)
+int FP_Iteration     ( ode_sys *system,  solution *u,  val_type tn,
+                         int ii,val_type h,  tcoeffs *method,
+                         tcache_stat *cache_stat, tcache_vars *cache_vars,
+                         int *D0, bool *iter0)
 {
-
-#ifdef PARALLEL
-     int extern thread_count;
-#endif
-
-/* ----- First initializations -----------------------------------------------*/
-
-     int neq,ns;
-     parameters *params;
-     val_type *z,*zold,*li,*fz;
-     val_type *ttau;
-
-     neq=system->neq;
-     ns=method->ns;
-     params=&system->params;
-
-     z=thestatptr->z;
-     zold=thestatptr->zold;
-     li=thestatptr->li;
-     fz=thestatptr->fz;
-     ttau=method->ttau;
-
-/*------ Declarations --------------------------------------------------------*/
-
-     int i,is,js,isn,in,jsn,jsni;
-     val_type sum,dY;     
-     int DD0,myfcn;
-     bool cont,eval;
-     bool plusIt;
-
-/* ----- Implementation ------------------------------------------------------*/
-
- 
-     if (*D0<0) plusIt=false;
-         else plusIt=true;
-
-     DD0=0;         
-     cont=false; 
-     eval=false;       
-     myfcn=0;
-
-
-     for (is = 0; is<ns; is++)
-     {
-           isn=neq*is;
-
-           for (i = 0; i<neq; i++)
-           {
-                 in=isn+i;
-                 sum=method->m[ns*is]*li[i];
-                 for (js =1; js<ns; js++)
-                 {
-                       jsn=ns*is+js;
-                       jsni=neq*js+i;
-                       sum+=method->m[jsn]*li[jsni];
-                 }
-
-                 zold[in]=z[in];
-                 z[in]=u->uul[i]+sum;
-           }
-     }
-
-
-#ifdef PARALLEL
-#      pragma omp parallel for num_threads(thread_count) \
-                               default(shared)\
-                               private(is,i,isn,in,dY) \
-                               reduction (+:DD0,myfcn) \
-                               reduction (||:cont)
-#endif
-     for (is = 0; is<ns; is++)
-     {
-           isn=neq*is;
-           for (i=0; i<neq; i++) 
-           {   
-               in=isn+i;
-               
-               /* Stop Criterion */
-	       dY=FABS(z[in]-zold[in]);
-
-               if (dY>0.)
-               {
-                  eval=true;
-                  if (dY<DMin[in])
-                  {
-                        DMin[in]=dY;
-                        cont =true;
-                  }
-               }
-               else
-               {
-                  DD0++;
-               }   
-
-           }  
-       
-           if (eval)
-           {
-              myfcn++;
-              system->f(neq,tn+method->hc[is],ttau[is],&z[isn],&fz[isn],params);
-
-              for (i=0; i<neq; i++)
-              {
-                   in=isn+i;
-                   li[in]=fz[in]*method->hb[is];
-              }
-           }
-     }
-
-     *D0=DD0;
-     *iter0=cont;
-     thestatptr->fcn+=myfcn;
-
-
-     if (*iter0==false && *D0<(ns*neq) && plusIt)
-     {
-          *D0=-1;
-          *iter0=true;
-     }
-
-
-#ifdef MDEBUG
-
-
-  printf("General_FP_IIT\n");
-  printf("step=%i, iteration=%i, iter0=%i, D0=%i, plusIt=%i ****\n",
-          thestatptr->stepcount, thestatptr->itcount, *iter0, DD0, plusIt); 
-#endif
-
-     
-     return(0);
-
+#define BASEFPI val_type
+#define HIGHFPI 0
+#include <source_FP_iteration.h>
+#undef BASEFPI
+#undef HIGHFPI
 
 }
 
 
+int FP_Iteration_high  ( ode_sys_high *system,  solution *u,  highprec tn,
+                         int ii,highprec h,  tcoeffs_h *method,
+                         tcache_stat *cache_stat, tcache_vars_high *cache_vars,
+                         int *D0, bool *iter0)
+{
+#define BASEFPI highprec
+#define HIGHFPI 1
+#include <source_FP_iteration.h>
+#undef BASEFPI
+#undef HIGHFPI
+
+}
 
 /******************************************************************************/
 /* 									      */
@@ -388,9 +427,45 @@ int General_FP_It      ( ode_sys *system,  solution *u,  val_type tn,
 /* 									      */
 /******************************************************************************/
 
-void Summation                ( gauss_method *gsmethod,
+void Summation                ( tcoeffs *gsmethod,
                                 solution *u, ode_sys *system,
-                                toptions *options, solver_stat *thestatptr)
+                                toptions *options, tcache_vars *cache_vars)
+
+{
+
+#define BASESUM val_type
+#define HIGHSUM 0
+#include <source_Summation.h>
+#undef BASESUM
+#undef HIGHSUM
+
+}
+
+
+void Summation_high            ( tcoeffs_h *gsmethod,
+                                solution *u, ode_sys_high *system,
+                                toptions *options, tcache_vars_high *cache_vars)
+
+{
+
+#define BASESUM highprec
+#define HIGHSUM 1
+#include <source_Summation.h>
+#undef BASESUM
+#undef HIGHSUM
+
+}
+
+
+/******************************************************************************/
+/* 									      */
+/*   deltafun    							      */
+/* 									      */
+/* 									      */
+/******************************************************************************/
+
+void deltafun     ( tcoeffs *gsmethod, ode_sys *system,
+                    tcache_vars *cache_vars, val_type *delta)
 
 {
 
@@ -405,36 +480,33 @@ void Summation                ( gauss_method *gsmethod,
 /*------ Declarations --------------------------------------------------------*/
 
      int i,is,isn;
-     val_type *fz;
-     fz=thestatptr->fz;
-
+     val_type *fz,*d;
+     fz=cache_vars->fz;
+     d=gsmethod->d;
 
 /* ----- Implementation ------------------------------------------------------*/
 
 
-//---- High-prec computation of Li 
-
-
-    for (is=0; is<ns; is++)
+    for (i = 0; i<neq; i++)
     {
-        isn=neq*is;
-        u->uu[0]+=fz[isn]*gsmethod->hb[is];
+        delta[i]=fz[i]*d[0];
 
-        for (i = 1; i<neq; i++)
-                u->uu[i]+=fz[isn+i]*gsmethod->hb[is];
+        for (is=1; is<ns; is++)
+        {
+                isn=neq*is;
+                delta[i]+=fz[isn+i]*d[is];
+        }
     }
 
 
-    for (i = 0; i<neq; i++) u->uul[i]=u->uu[i];
-
-
-#ifdef MDEBUG
+#ifdef DELDEBUG
 
    double aux;
 
    aux=0.;
-   for (i=0; i<neq; i++) aux+=u->uu[i]*u->uu[i];
-   printf("Norm(w)=%lg\n",sqrt(aux));
+   for (i=0; i<neq; i++) aux+=delta[i]*delta[i];
+   printf("Norm(delta)=%lg\n",sqrt(aux));
+ 
 
 #endif
 
@@ -442,6 +514,145 @@ void Summation                ( gauss_method *gsmethod,
     return;
 
 }
+
+
+
+/******************************************************************************/
+/* 									      */
+/*    Ordinary_stepQ							      */
+/* 									      */
+/* 									      */
+/******************************************************************************/
+
+bool Ordinary_stepQ            ( ode_sys *system, val_type h, int k,
+                                 tcache_stat *cache_stat, tcache_vars *cache_vars)
+
+{
+
+
+/* ----- First initializations -----------------------------------------------*/
+
+     int neq;
+     neq=system->neq;
+ 
+
+/*------ Declarations --------------------------------------------------------*/
+
+     int i,m;
+     bool res;
+
+     val_type *delta,*avg_delta;
+     delta=cache_vars->delta;
+     avg_delta=cache_vars->avg_delta;
+
+/* ----- Implementation ------------------------------------------------------*/
+
+    res=true;
+    m=cache_stat->stepcount+1;
+
+    if (m>1)
+    {
+       for (i=0; i<neq; i++)
+       {
+           if (FABS(delta[i])>NU*avg_delta[i]) 
+           {
+             res=false;
+#ifdef IOUT
+             double lag;
+             lag=cache_stat->stepcount*h;
+             fprintf(myfile2,"Non-Ordinary step!!. step=%i, t=%lg, gorputza=%i,k=%i\n",cache_stat->stepcount,lag,i,k);
+#endif
+           }
+           avg_delta[i]=(avg_delta[i]*(m-1)+FABS(delta[i]))/m;           
+       }
+    }
+    else
+       for (i = 0; i<neq; i++) avg_delta[i]=FABS(delta[i]);
+
+    
+
+#ifdef MDEBUG
+
+   double aux;
+
+   aux=0.;
+   for (i=0; i<neq; i++) aux+=avg_delta[i]*avg_delta[i];
+   printf("Norm(avg_delta)=%lg\n",sqrt(aux));
+
+ 
+#endif
+
+
+
+    return(res);
+
+}
+
+
+
+
+/******************************************************************************/
+/* 									      */
+/*    Num_steps								      */
+/* 									      */
+/* 									      */
+/******************************************************************************/
+
+int Num_steps     ( tcoeffs *gsmethod,
+                    ode_sys *system,
+                    tcache_stat *cache_stat, 
+                    tcache_vars *cache_vars)
+{
+
+
+/* ----- First initializations -----------------------------------------------*/
+
+     int neq,ns;
+
+     neq=system->neq;
+     ns=gsmethod->ns;
+ 
+/*------ Declarations --------------------------------------------------------*/
+
+     int i,k,m;
+     val_type max,p;
+     val_type *delta,*avg_delta;
+     delta=cache_vars->delta;
+     avg_delta=cache_vars->avg_delta;
+
+/* ----- Implementation ------------------------------------------------------*/
+
+     m=cache_stat->stepcount+1;
+
+    if (m>1)
+    {
+       max=0.;
+       p=1./(ns-1);
+       for (i = 0; i<neq; i++)
+          max=FMAX(max,pow(FABS(delta[i])/avg_delta[i],p));
+
+       k=ceil(max);
+    }
+    else
+      k=1;
+
+   return(k);
+
+
+#ifdef ESTDEBUG
+
+   double a;
+
+   a=max;
+   printf("Max=%lg,k=%i\n",a,k);
+
+ 
+#endif
+
+
+}
+
+
 
 
 
@@ -455,9 +666,8 @@ void Summation                ( gauss_method *gsmethod,
 
 void Main_FCIRK
 (val_type t0, val_type t1, val_type h,
-  gauss_method *gsmethod, solution *u,
-  ode_sys *system, toptions *options,
-  solver_stat *thestatptr)
+ tmethod *method, solution *u, tode_sys *ode_system, toptions *options,
+ tcache *cache)
 
 {
 
@@ -465,128 +675,89 @@ void Main_FCIRK
 
      int neq;
 
-     Pkepler_sys *Pkepler;
      parameters *params;
 
-     neq=system->neq;
-     params=&system->params;
-     Pkepler=&params->Pkepler;
+     neq=ode_system->system.neq;
+     params=&ode_system->system.params;
+
 
 /*------ Declarations --------------------------------------------------------*/
 
      FILE *myfile;
 
-     int i,is,in,ns,istep,nstep;
-     int js,jsn;
+     int istep,nstep;
      val_type tn;
-     val_type *z,*coef;
-     val_type *zold,*fz;
-     val_type sum;
+     val_type *fz;
 
-     fz=thestatptr->fz;
-     z=thestatptr->z;
-     zold=thestatptr->zold;
-     ns=gsmethod->ns;
-     coef=gsmethod->nu;
+     fz=cache->cache_vars.fz;
 
 /* ----- Implementation ------------------------------------------------------*/
 
 #ifdef IOUT
      myfile = fopen(options->filename,"wb");
+     myfile2 = fopen("./Data/NonOrdinarySteps.txt","w");
 #endif
 
      tn=t0;
      nstep=round((t1-t0)/h);
-     thestatptr->execution=SUCCESS;
+     cache->cache_stat.execution=SUCCESS;
 
 #ifdef IOUT
-     options->TheOutput(system,gsmethod,tn,h,u,thestatptr,params,options,myfile);
+     options->TheOutput(&ode_system->system,&method->coeffs,tn,h,u,&cache->cache_stat,params,options,myfile);
 #endif
 
-     system->StartFun(neq,t0,h,u,params);
+     ode_system->system.StartFun(neq,t0,h,u,params);
+     cache->cache_stat.interpolate=false;
 
      for(istep=0; (istep<nstep); istep++)
      {
- 
-
-          if (istep==0 || h>7)
-
-             for (is = 0; is<ns; is++)
-             {
-               in=is*neq;
-               for (i = 0; i<neq; i++) z[in+i]=u->uul[i];
-             }
-
+          if (options->adaptive==true)
+          {
+             IRKstep_adaptive (ode_system,u,tn,0,h,options,
+                               method,
+                               &cache->cache_stat,&cache->cache_vars,&cache->cache_vars_h);
+          }
           else
+          {  
+             IRKstep_fixed (&ode_system->system,u,tn,0,h,options,&method->coeffs,&cache->cache_stat,&cache->cache_vars);     
+
+          }
+     
+          if (h<7) cache->cache_stat.interpolate=true;
+
+          if (cache->cache_stat.convergence==FAIL || isnan(fz[0]))
           {
-
-             for (is = 0; is<ns; is++)
-             {
-
-               in=is*neq;
-               KeplerFlowAll2 (neq,Pkepler->keplerkop,&z[in],h,params);
-
-               for (i = 0; i<neq; i++)
-               {
-                 zold[in+i]=z[in+i];
-               }
-             }
-
-             for (is = 0; is<ns; is++)
-             {
-               in=is*neq;
-               for (i = 0; i<neq; i++)
-               {
-                   sum=0.;
-                   for (js = 0; js<ns; js++)
-                   {
-                       jsn=(ns+1)*is+js;
-                       sum+=zold[neq*js+i]*(coef[jsn]);
-                   }
-
-                   jsn=(ns+1)*is+ns;
-                   z[in+i]=sum+u->uul[i]*coef[jsn];
-
-                }
-             }
-   
-          } 
-
-
-          Fixed_point_Step (system,u,tn,h,options,gsmethod,thestatptr);
-          if (thestatptr->convergence==FAIL || isnan(fz[0]))
-          {
-               thestatptr->execution=FAIL;
+               cache->cache_stat.execution=FAIL;
                nstep=istep;
 
           }
           else
           {
-               Summation (gsmethod,u,system,options,thestatptr);
                tn=t0+(istep+1)*h;
 
-               thestatptr->stepcount++;
-               (thestatptr->totitcount)+=(thestatptr->itcount);
-               if ((thestatptr->itcount)>(thestatptr->maxitcount))
-                  (thestatptr->maxitcount)=(thestatptr->itcount);
+               cache->cache_stat.stepcount++;
+               (cache->cache_stat.totitcount)+=(cache->cache_stat.itcount);
+               if ((cache->cache_stat.itcount)>(cache->cache_stat.maxitcount))
+                  (cache->cache_stat.maxitcount)=(cache->cache_stat.itcount);
 
-               system->ProjFun(neq, tn, h, u, params);
+               ode_system->system.ProjFun(neq, tn, h, u, params);
 #ifdef IOUT
-               options->TheOutput(system,gsmethod,tn,h,u,thestatptr,params,options,myfile);
+               options->TheOutput(&ode_system->system,&method->coeffs,tn,h,u,&cache->cache_stat,params,options,myfile);
 #endif
-               if (tn+h>=t1 && thestatptr->laststep==false)
-                    thestatptr->laststep=true;
+               if (tn+h>=t1 && cache->cache_stat.laststep==false)
+                    cache->cache_stat.laststep=true;
 
           }
      }
 
 #ifdef DEBUG
-     if (thestatptr->execution==SUCCESS) printf("Success execution!!\n");
+     if (cache->cache_stat.execution==SUCCESS) printf("Success execution!!\n");
      else printf("Execution Fail!!\n");
 #endif
 
 #ifdef IOUT
      fclose(myfile);
+     fclose(myfile2);
 #endif
 
      return;

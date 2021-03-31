@@ -12,13 +12,20 @@
      int i,nd,q1,p1;
      int id,i1,i2;
 
-     val_type dr[dim],dv[dim];
+     BASE2B dr[dim],dv[dim];
+
+#if HIGH2B ==0 
      Pkepler_sys *Pkepler;
+#else
+     Pkepler_sys_high *Pkepler;
+#endif
 
 /* ----- Implementation ------------------------------------------------------*/
 
      Pkepler=&params->Pkepler;
-     val_type *k;
+
+
+     BASE2B *k;
      k=Pkepler->K;
      nd=neq/2;
 

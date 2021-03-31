@@ -73,10 +73,17 @@ void KeplerSolveITER_high
 void  KeplerFlowGFcn 
 (void GFcn(), int neq, val_type t,
  val_type *U, int keplerkop,
- val_type *mu, parameters *params, val_type dt,
+ val_type *k, parameters *params, val_type dt,
  val_type *G
 );
 
+
+void  KeplerFlowGFcn_high 
+(void GFcn(), int neq, highprec t,
+ highprec *U, int keplerkop,
+ highprec *k, parameters_high *params, highprec dt,
+ highprec *G
+);
 
 void KeplerFlowGen 
 (val_type dt, val_type *Q, val_type *V, val_type mu,
@@ -84,10 +91,21 @@ void KeplerFlowGen
 );
 
 
+void KeplerFlowGen_high
+(highprec dt, highprec *Q, highprec *V, highprec k,
+ highprec *qq, highprec *vv, flowaux_high *aux
+);
+
 void KeplerFlowGFcnAux
 (val_type dt,val_type *Q, val_type *V, 
  val_type *gq,val_type *gv,
  flowaux *aux, val_type mu, val_type *Gq, val_type *Gv
+);
+
+void KeplerFlowGFcnAux_high
+(highprec dt,highprec *Q, highprec *V, 
+ highprec *gq, highprec *gv,
+ flowaux_high *aux, highprec k, highprec *Gq, highprec *Gv
 );
 
 
@@ -109,16 +127,16 @@ void StartFun_high
 );
 
 void OutputFun 
-( ode_sys *system,  gauss_method *method,
+( ode_sys *system,  tcoeffs *method,
   val_type t, val_type h, solution *w,
-  solver_stat *thestatptr,
+  tcache_stat *cache_stat,
   parameters *params, toptions *options,FILE *loga
 );
 
 void OutputFun_high 
-( ode_sys *system,  gauss_method *method,
+( ode_sys *system,  tcoeffs *method,
   val_type t, val_type h, solution *w,
-  solver_stat *thestatptr,
+  tcache_stat *cache_stat,
   parameters *params, toptions *options,FILE *loga
 );
 

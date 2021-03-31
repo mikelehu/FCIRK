@@ -16,160 +16,76 @@
 #include <GaussCoefficients.h>
 
 
-void GaussCoefficients
-(const char *path, gauss_method *method,  val_type h)
-
+void MallocGsCoefficients
+(const char *path,tcoeffs *method, int kmax)
 {
+
+#define BASEMGS val_type
+#define HIGHMGS 0
+#include <source_MallocGsCoefficients.h>
+#undef BASEMGS
+#undef HIGHMGS
+
+}
+
+void MallocGsCoefficients_high
+(const char *path,tcoeffs_h *method, int kmax)
+{
+
+#define BASEMGS highprec
+#define HIGHMGS 1
+#include <source_MallocGsCoefficients.h>
+#undef BASEMGS
+#undef HIGHMGS
+
+}
+
+
+
+void AssignGsCoefficients
+(const char *path, tcoeffs *method,val_type h, int k)
+{
+
+#define BASEAGS val_type
+#define HIGHAGS 0
+#include <source_AssignGsCoefficients.h>
+#undef BASEAGS
+#undef HIGHAGS
+
+}
+
+
+void AssignGsCoefficients_high
+(const char *path, tcoeffs_h *method,highprec h, int k)
+{
+
+#define BASEAGS highprec
+#define HIGHAGS 1
+#include <source_AssignGsCoefficients.h>
+#undef BASEAGS
+#undef HIGHAGS
+
+}
+
+
+void UpdateGsCoefficients_high
+(tcoeffs_h *method,highprec h, int k)
+{
+
 /*------ Declarations --------------------------------------------------------*/
 
-     int i,j;
-     int info;
+     int i,ii,isn;
      int ns=method->ns;
 
-     char mydir[256];
-     FILE *fileM,*fileA,*fileB,*fileC,*fileNU;
-
-     char filenameM[STRMAX];
-     char filenameA[STRMAX];
-     char filenameB[STRMAX];
-     char filenameC[STRMAX];
-     char filenameNU[STRMAX];
 
 #    ifdef DEBUG
      double aux;
 #    endif
 
-     __float128 *m, *a, *b, *c, *nu;
-
-     m =(__float128 *) malloc(ns*ns*sizeof(__float128));
-     a =(__float128 *) malloc(ns*ns*sizeof(__float128));
-     b = (__float128 *) malloc(ns*sizeof(__float128));
-     c = (__float128 *) malloc((ns)*sizeof(__float128));
-     nu = (__float128 *) malloc(ns*(ns+1)*sizeof(__float128));
-
-     method->m =(val_type *) malloc(ns*ns*sizeof(val_type));
-     method->a =(val_type *) malloc(ns*ns*sizeof(val_type));
-     method->b = (val_type *) malloc(ns*sizeof(val_type));
-     method->hb = (val_type *) malloc(ns*sizeof(val_type));
-     method->c = (val_type *) malloc((ns)*sizeof(val_type));
-     method->hc = (val_type *) malloc((ns)*sizeof(val_type));
-     method->nu = (val_type *) malloc(ns*(ns+1)*sizeof(val_type));
-     method->ttau = (val_type *) malloc((ns)*sizeof(val_type));
 
 /* ----- Implementation ------------------------------------------------------*/
 
-     strcpy(mydir,path);
-
-     switch (ns)
-     {
-     case 6:
-
-           strcat(mydir,"S6/");
-
-     break;
-
-     case 8:
-
-           strcat(mydir,"S8/");
-
-     break;
-
-     case 9:
-
-           strcat(mydir,"S9/");
-
-     break;
-
-     case 16:
-
-           strcat(mydir,"S16/");
-
-     break;
-
-     case 2:
-
-           strcat(mydir,"S2/");
-
-     break;
-
-
-     default:
-          printf("Coefficients not defined\n");
-     break;
-
-     }
-
-     strcpy(filenameM,mydir);
-     strcpy(filenameA,mydir);
-     strcpy(filenameB,mydir);
-     strcpy(filenameC,mydir);
-     strcpy(filenameNU,mydir);
-
-
-     strcat(filenameM,"QMCoef.bin");
-     strcat(filenameA,"QACoef.bin");
-     strcat(filenameB,"QBCoef.bin");
-     strcat(filenameC,"QCCoef.bin");  
-     strcat(filenameNU,"QLamdaCoef.bin");  
-
-
-    fileM = fopen(filenameM,"rb");
-    if (fileM == NULL) printf("Coefficients file doesnt exists\n");
-    fileA = fopen(filenameA,"rb");
-    if (fileA == NULL) printf("Coefficients file doesnt exists\n");
-    fileB = fopen(filenameB,"rb");
-    if (fileB == NULL) printf("Coefficients file doesnt exists\n");
-    fileC = fopen(filenameC,"rb");
-    if (fileC == NULL) printf("Coefficients file doesnt exists\n");
-    fileNU = fopen(filenameNU,"rb");
-    if (fileNU == NULL) printf("Coefficients file doesnt exists\n");
-
-    info=fread(m, sizeof(__float128),ns*ns,fileM);
-    if (info == -1) printf("Error fread command\n");
-    info=fread(a, sizeof(__float128),ns*ns,fileA);
-    if (info == -1) printf("Error fread command\n");
-    info=fread(b, sizeof(__float128),ns,fileB);
-    if (info == -1) printf("Error fread command\n");
-    info=fread(c, sizeof(__float128),ns,fileC);
-    if (info == -1) printf("Error fread command\n");
-    info=fread(nu, sizeof(__float128),ns*(ns+1),fileNU);
-    if (info == -1) printf("Error fread command\n");
  
-    for (i=0; i<ns; i++) method->m[i*ns+i]=m[i*ns+i];
-    for (i=1; i<ns; i++)
-    for (j=0; j<i; j++) method->m[i*ns+j]=m[i*ns+j];
-    for (i=1; i<ns; i++)
-    for (j=0; j<i; j++) method->m[j*ns+i]=1-method->m[i*ns+j];
-
-
-    for (i=0;i<ns*ns; i++) method->a[i] = a[i];
-
-    for (i=0;i<ns*(ns+1); i++)	method->nu[i] = nu[i];
-
-
-    for (i=0;i<ns; i++)
-    {
-	method->c[i]= c[i];
-	method->b[i] = b[i];
-    }
-
-
-/*---- Verify symplectic condition ---------------------------------------------*/
-
-#    ifdef DEBUG
-     for (i=0; i<ns; i++)
-     {
-        printf("\n");
-        
-        for (j=0; j<ns; j++) 
-        {
-             aux=method->m[i*ns+j]+method->m[j*ns+i]-1.;
-             printf ("%lg,", aux);
-        }
-     }
-
-     printf("\n");
-#    endif
 
 /*---- Calculate hb coefficients -----------------------------------------------*/ 
 /*---- Calculate hbi coeficients in high precision ----------------------------*/
@@ -179,7 +95,7 @@ void GaussCoefficients
      hq=h;
      for (i=1; i<ns-1; i++)
      {
-        auxq=b[i];
+        auxq=method->b[i];
         method->hb[i]=hq*auxq;
         sumq+=method->hb[i];
      }
@@ -191,11 +107,17 @@ void GaussCoefficients
 /*---- Calculate hc coefficients -----------------------------------------------*/
 
      for (i=0; i<ns; i++)
-     {
         method->hc[i]=h*method->c[i];
-        method->ttau[i]=method->hc[i]-h/2;
-     }
 
+
+     for (ii=0; ii<k; ii++)
+     {
+         isn=ii*ns;
+         
+         for (i=0; i<ns; i++) 
+           method->ttau[isn+i]=ii*h+method->hc[i]-k*h/2;
+
+    }
 
 /*---- Verify that Sum hbi -h=0 ------------------------------------------------*/
 
@@ -226,17 +148,14 @@ void GaussCoefficients
 #    endif
 
 
-     fclose(fileM);
-     fclose(fileA);
-     fclose(fileB);
-     fclose(fileC);
-     fclose(fileNU);
-
-     free(m);
-     free(a);
-     free(b);
-     free(c);
-     free(nu);
-
      return;
 }
+
+
+
+
+
+
+
+
+
