@@ -12,9 +12,9 @@
      int i,nd,q1,p1;
      int id,i1,i2;
 
-     BASE2B dr[dim],dv[dim];
+     BASE dr[dim],dv[dim];
 
-#if HIGH2B ==0 
+#if HIGH ==0 
      Pkepler_sys *Pkepler;
 #else
      Pkepler_sys_high *Pkepler;
@@ -25,7 +25,7 @@
      Pkepler=&params->Pkepler;
 
 
-     BASE2B *k;
+     BASE *k;
      k=Pkepler->K;
      nd=neq/2;
 

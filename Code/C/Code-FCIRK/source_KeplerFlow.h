@@ -11,10 +11,10 @@
      int i;
      int dim=3;
 
-     BASE3 r0,eta,alpha,beta,gamma;
-     BASE3 zeta;           
-     BASE3 r,rinv,X;
-     BASE3 b[4],G[3];   
+     BASE r0,eta,alpha,beta,gamma;
+     BASE zeta;           
+     BASE r,rinv,X;
+     BASE b[4],G[3];   
     
 /* ----- Implementation ------------------------------------------------------*/
    
@@ -39,7 +39,7 @@
        zeta=k-beta*r0;
 
   
-#if HIGH3 ==0
+#if HIGH ==0
        KeplerSolveE(r0,gamma,eta,beta,k,dt,&X,G);     
 #else
        KeplerSolveE_high(r0,gamma,eta,beta,k,dt,&X,G); 

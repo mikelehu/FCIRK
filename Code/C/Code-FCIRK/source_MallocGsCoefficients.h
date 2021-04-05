@@ -16,15 +16,15 @@
      __float128  *nu;
      nu = (__float128 *) malloc(ns*(ns+1)*sizeof(__float128));
 
-     method->m =(BASEMGS *) malloc(ns*ns*sizeof(BASEMGS));
-     method->a =(BASEMGS *) malloc(ns*ns*sizeof(BASEMGS));
-     method->b = (BASEMGS *) malloc(ns*sizeof(BASEMGS));
-     method->hb = (BASEMGS *) malloc(ns*sizeof(BASEMGS));
-     method->c = (BASEMGS *) malloc((ns)*sizeof(BASEMGS));
-     method->hc = (BASEMGS *) malloc((ns)*sizeof(BASEMGS));
-     method->nu = (BASEMGS *) malloc(ns*(ns+1)*sizeof(BASEMGS));
-     method->ttau = (BASEMGS *) malloc((kmax*ns)*sizeof(BASEMGS));
-     method->d = (BASEMGS *) malloc((ns)*sizeof(BASEMGS));
+     method->m =(BASE *) malloc(ns*ns*sizeof(BASE));
+     method->a =(BASE *) malloc(ns*ns*sizeof(BASE));
+     method->b = (BASE *) malloc(ns*sizeof(BASE));
+     method->hb = (BASE *) malloc(ns*sizeof(BASE));
+     method->c = (BASE *) malloc((ns)*sizeof(BASE));
+     method->hc = (BASE *) malloc((ns)*sizeof(BASE));
+     method->nu = (BASE *) malloc(ns*(ns+1)*sizeof(BASE));
+     method->ttau = (BASE *) malloc((kmax*ns)*sizeof(BASE));
+     method->d = (BASE *) malloc((ns)*sizeof(BASE));
 
      strcpy(mydir,path);
 

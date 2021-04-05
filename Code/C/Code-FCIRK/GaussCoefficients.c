@@ -20,11 +20,11 @@ void MallocGsCoefficients
 (const char *path,tcoeffs *method, int kmax)
 {
 
-#define BASEMGS val_type
-#define HIGHMGS 0
+#define BASE val_type
+#define HIGH 0
 #include <source_MallocGsCoefficients.h>
-#undef BASEMGS
-#undef HIGHMGS
+#undef BASE
+#undef HIGH
 
 }
 
@@ -32,11 +32,11 @@ void MallocGsCoefficients_high
 (const char *path,tcoeffs_h *method, int kmax)
 {
 
-#define BASEMGS highprec
-#define HIGHMGS 1
+#define BASE highprec
+#define HIGH 1
 #include <source_MallocGsCoefficients.h>
-#undef BASEMGS
-#undef HIGHMGS
+#undef BASE
+#undef HIGH
 
 }
 
@@ -46,11 +46,11 @@ void AssignGsCoefficients
 (const char *path, tcoeffs *method,val_type h, int k)
 {
 
-#define BASEAGS val_type
-#define HIGHAGS 0
+#define BASE val_type
+#define HIGH 0
 #include <source_AssignGsCoefficients.h>
-#undef BASEAGS
-#undef HIGHAGS
+#undef BASE
+#undef HIGH
 
 }
 
@@ -59,11 +59,11 @@ void AssignGsCoefficients_high
 (const char *path, tcoeffs_h *method,highprec h, int k)
 {
 
-#define BASEAGS highprec
-#define HIGHAGS 1
+#define BASE highprec
+#define HIGH 1
 #include <source_AssignGsCoefficients.h>
-#undef BASEAGS
-#undef HIGHAGS
+#undef BASE
+#undef HIGH
 
 }
 

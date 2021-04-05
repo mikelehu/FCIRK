@@ -12,9 +12,9 @@
      int id,i1,i2;
 
      val_type *k;
-     BASE2 ki;
-     BASE2 dr[dim],dv[dim];
-     BASE2 *ux;
+     BASE ki;
+     BASE dr[dim],dv[dim];
+     BASE *ux;
 
      Pkepler_sys *Pkepler;
 
@@ -23,7 +23,7 @@
 
      Pkepler=&params->Pkepler;
 
-#if HIGH2 == 0
+#if HIGH == 0
      k=Pkepler->K;
      ux=u->uul;   //low
 #else
@@ -34,7 +34,7 @@
      nd=neq/2;
 
 
-#if HIGH2 == 0
+#if HIGH == 0
 
      for (i = 0; i<keplerkop; i++)
      {

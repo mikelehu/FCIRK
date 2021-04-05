@@ -21,16 +21,16 @@
      bool iter0;
      int D0;
      double difftest;
-     BASEIST *z,*zold,*fz,*li,*DMin;
-     BASEIST *ttau; 
+     BASE *z,*zold,*fz,*li,*DMin;
+     BASE *ttau; 
 
 
-#if HIGHIST ==0 
+#if HIGH ==0 
      int jsn,js;
      parameters *params;
      Pkepler_sys *Pkepler;
-     BASEIST sum; 
-     BASEIST *coef;
+     BASE sum; 
+     BASE *coef;
      coef=method->nu;  
      params=&system->params;
      Pkepler=&params->Pkepler;
@@ -64,7 +64,7 @@
 
     else
     {
-#if HIGHIST ==0 
+#if HIGH ==0 
        for (is = 0; is<ns; is++)
        {
 
@@ -139,7 +139,7 @@
 
      while (iter0 && cache_stat->itcount<MAXIT)
      {
-#if HIGHIST ==0 
+#if HIGH ==0 
            FP_Iteration (system,u,tn,ii,h,method,cache_stat,cache_vars,&D0, &iter0); 
 #else
            FP_Iteration_high (system,u,tn,ii,h,method,cache_stat,cache_vars,&D0, &iter0);
@@ -157,7 +157,7 @@
 
      if (D0<(ns*neq))
      {
-#if HIGHIST ==0
+#if HIGH ==0
            difftest=NormalizedDistance(neq,ns,options,z,zold);
 #else
            difftest=NormalizedDistance_high(neq,ns,options,z,zold);
@@ -178,7 +178,7 @@
      }
 
      if (cache_stat->convergence!=FAIL)
-#if HIGHIST ==0
+#if HIGH ==0
          Summation (method,u,system,options,cache_vars);
 #else
          Summation_high (method,u,system,options,cache_vars);

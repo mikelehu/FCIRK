@@ -10,9 +10,9 @@
      int i;
      int dim=3;
 
-     BASE3 r0,eta,alpha,beta,gamma,zeta;
-     BASE3 r,rinv,X;
-     BASE3 b[4],G[3];   
+     BASE r0,eta,alpha,beta,gamma,zeta;
+     BASE r,rinv,X;
+     BASE b[4],G[3];   
     
 /* ----- Implementation ------------------------------------------------------*/
 
@@ -27,7 +27,7 @@
      else
      {
 
-#if HIGH3 ==0
+#if HIGH ==0
 
      r0=KSQRT(q[0]*q[0]+q[1]*q[1]+q[2]*q[2]);
      eta=q[0]*v[0]+q[1]*v[1]+q[2]*v[2];

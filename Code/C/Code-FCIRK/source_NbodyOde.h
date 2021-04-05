@@ -8,8 +8,8 @@
 
 /*------ Declarations --------------------------------------------------------*/
 
-   BASENODE *k;
-#if HIGHNODE ==0 
+   BASE *k;
+#if HIGH ==0 
    Pkepler_sys *Pkepler;
 #else
    Pkepler_sys_high *Pkepler;
@@ -21,7 +21,7 @@
    k=Pkepler->K;   
 
 
-#if HIGHNODE ==0 
+#if HIGH ==0 
    KeplerFlowGFcn (NbodyGFcn,neq,t,u,Pkepler->keplerkop,k,params,ttau,f);   
 #else
    KeplerFlowGFcn_high (NbodyGFcn_high,neq,t,u,Pkepler->keplerkop,k,params,ttau,f);  

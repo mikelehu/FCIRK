@@ -10,9 +10,9 @@
 
      int j,j1,j2;
 
-     BASEFWGF u[neq],g[neq];
+     BASE u[neq],g[neq];
 
-#if HIGHFWGF ==0 
+#if HIGH ==0 
      flowaux aux[keplerkop];
 #else
      flowaux_high aux[keplerkop];
@@ -23,7 +23,7 @@
      {
           j1=j*dim;
           j2=j1+nd;
-#if HIGHFWGF ==0 
+#if HIGH ==0 
           KeplerFlowGen (dt, &U[j1], &U[j2], k[j], &u[j1], &u[j2], &aux[j]);
 #else
           KeplerFlowGen_high (dt, &U[j1], &U[j2], k[j], &u[j1], &u[j2], &aux[j]);
@@ -39,7 +39,7 @@
      {
           j1=j*dim;
           j2=j1+nd;
-#if HIGHFWGF ==0 
+#if HIGH ==0 
           KeplerFlowGFcnAux (dt,&U[j1],&U[j2],&g[j1],&g[j2],&aux[j],k[j],&G[j1],&G[j2]);
 #else
           KeplerFlowGFcnAux_high (dt,&U[j1],&U[j2],&g[j1],&g[j2],&aux[j],k[j],&G[j1],&G[j2]);

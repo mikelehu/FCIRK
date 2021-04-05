@@ -13,13 +13,13 @@
 /* ----- First initializations -----------------------------------------------*/
 
      int neq,ns;
-     BASEFPI *z,*zold,*li,*fz,*DMin;
-     BASEFPI *ttau;
+     BASE *z,*zold,*li,*fz,*DMin;
+     BASE *ttau;
 
      neq=system->neq;
      ns=method->ns;
 
-#if HIGHFPI ==0 
+#if HIGH ==0 
      parameters *params;
 #else
      parameters_high *params;
@@ -92,7 +92,7 @@
                in=isn+i;
                
                /* Stop Criterion */
-	       dY=FABS(z[in]-zold[in]);
+	       dY=KFABS(z[in]-zold[in]);
 
                if (dY>0.)
                {

@@ -292,8 +292,6 @@ typedef struct ode_sys_high
      void (*f)();	        // odefun.
      __float128 (*ham)();	// hamiltonian
      parameters_high params;
-//     void (*ProjFun)();      
-//     void (*StartFun)();     
      int ode;       
 
     } ode_sys_high;

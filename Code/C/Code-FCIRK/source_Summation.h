@@ -18,11 +18,11 @@
 /*------ Declarations --------------------------------------------------------*/
 
      int i,is,isn;
-#if HIGHSUM ==0
-     BASESUM *fz;
+#if HIGH ==0
+     BASE *fz;
      fz=cache_vars->fz;
 #else
-     BASESUM *li;
+     BASE *li;
      li=cache_vars->li;
 #endif
 
@@ -32,7 +32,7 @@
 //---- High-prec computation of Li 
 
 
-#if HIGHSUM ==0
+#if HIGH ==0
     for (is=0; is<ns; is++)
     {
         isn=neq*is;

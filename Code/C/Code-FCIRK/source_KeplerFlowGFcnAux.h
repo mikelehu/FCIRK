@@ -9,10 +9,10 @@
 
      int id;
 
-     BASEFGAux r0inv,betainv;
-     BASEFGAux lambda[16];
-     BASEFGAux r0kg,G1b,G2b;
-     BASEFGAux Rqv[2*dim],RQV[2*dim];
+     BASE r0inv,betainv;
+     BASE lambda[16];
+     BASE r0kg,G1b,G2b;
+     BASE Rqv[2*dim],RQV[2*dim];
 
 
      if (k==0)			

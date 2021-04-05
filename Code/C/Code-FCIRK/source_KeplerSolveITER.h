@@ -13,9 +13,9 @@
 /*------ Declarations --------------------------------------------------------*/
 
 
-     BASE4 nu,rkg;
-     BASE4 X0,x0;
-     BASE4 G0,G1,G2;
+     BASE nu,rkg;
+     BASE X0,x0;
+     BASE G0,G1,G2;
 
      val_type rh0,F1,F3,lag;
      val_type dG1,dG2,dX;

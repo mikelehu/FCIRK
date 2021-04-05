@@ -253,25 +253,25 @@ __float128 RR1 (int neq,solution *u,parameters *params)
 
 void DRR1 (int neq, val_type t,val_type *u,val_type *dR,parameters *params)
 {
-#define BASEDRR1 val_type
-#define HIGHDRR1 0
+#define BASE val_type
+#define HIGH 0
 #define PSQRT(x) SQRT(x)
 #include <source_DRR1.h>
 #undef PSQRT
-#undef BASEDRR1
-#undef HIGHDRR1
+#undef BASE
+#undef HIGH
 }
 
 
 void DRR1_high (int neq, highprec t,highprec *u,highprec *dR,parameters_high *params)
 {
-#define BASEDRR1 highprec
-#define HIGHDRR1 1
+#define BASE highprec
+#define HIGH 1
 #define PSQRT(x) SQRT_high(x)
 #include <source_DRR1.h>
 #undef PSQRT
-#undef BASEDRR1
-#undef HIGHDRR1
+#undef BASE
+#undef HIGH
 }
 
 
@@ -506,13 +506,13 @@ void Mysubstract (val_type *q, val_type *Dq, val_type *sub)
   /*     as    (a^3-b^3)q+b^3*Dq,     a=1/||q+Dq||, b=1/||q||             */
   /*                                                                      */
 
-#define BASESUBS val_type
-#define HIGHSUBS 0
+#define BASE val_type
+#define HIGH 0
 #define PSQRT(x) SQRT(x)
 #include <source_Mysubstract.h>
 #undef PSQRT
-#undef BASESUBS
-#undef HIGHSUBS
+#undef BASE
+#undef HIGH
 
 }
 
@@ -525,13 +525,13 @@ void Mysubstract_high (highprec *q, highprec *Dq, highprec *sub)
   /*     as    (a^3-b^3)q+b^3*Dq,     a=1/||q+Dq||, b=1/||q||             */
   /*                                                                      */
 
-#define BASESUBS highprec
-#define HIGHSUBS 1
+#define BASE highprec
+#define HIGH 1
 #define PSQRT(x) SQRT_high(x)
 #include <source_Mysubstract.h>
 #undef PSQRT
-#undef BASESUBS
-#undef HIGHSUBS
+#undef BASE
+#undef HIGH
 
 }
 
@@ -545,26 +545,26 @@ void Mysubstract_high (highprec *q, highprec *Dq, highprec *sub)
 void DRR2 (int neq, val_type t,val_type *u,val_type *dR,parameters *params)
 {
 
-#define BASEDRR2 val_type
-#define HIGHDRR2 0
+#define BASE val_type
+#define HIGH 0
 #define PSQRT(x) SQRT(x)
 #include <source_DRR2.h>
 #undef PSQRT
-#undef BASEDRR2
-#undef HIGHDRR2
+#undef BASE
+#undef HIGH
 
 }
 
 void DRR2_high (int neq, highprec t,highprec *u,highprec *dR,parameters_high *params)
 {
 
-#define BASEDRR2 highprec
-#define HIGHDRR2 1
+#define BASE highprec
+#define HIGH 1
 #define PSQRT(x) SQRT_high(x)
 #include <source_DRR2.h>
 #undef PSQRT
-#undef BASEDRR2
-#undef HIGHDRR2
+#undef BASE
+#undef HIGH
 
 }
 
@@ -645,11 +645,11 @@ void KComp2 (int nbody, ode_sys *system, Pkepler_sys *Pkepler)
 void NbodyGFcn (int neq, val_type t,val_type *u,val_type *dR,parameters *params)
 {
 
-#define BASENFCN val_type
-#define HIGHNFCN 0
+#define BASE val_type
+#define HIGH 0
 #include <source_NbodyGFcn.h>
-#undef BASENFCN
-#undef HIGHNFCN
+#undef BASE
+#undef HIGH
 
 }
 
@@ -657,11 +657,11 @@ void NbodyGFcn (int neq, val_type t,val_type *u,val_type *dR,parameters *params)
 void NbodyGFcn_high (int neq, highprec t,highprec *u,highprec *dR,parameters_high *params)
 {
 
-#define BASENFCN highprec
-#define HIGHNFCN 1
+#define BASE highprec
+#define HIGH 1
 #include <source_NbodyGFcn.h>
-#undef BASENFCN
-#undef HIGHNFCN
+#undef BASE
+#undef HIGH
 
 }
 
@@ -675,13 +675,13 @@ void NbodyOde (int neq, val_type t,val_type ttau,
                val_type *u,val_type *f,parameters *params)
 {
 
-#define BASENODE val_type
-#define HIGHNODE 0
+#define BASE val_type
+#define HIGH 0
 #define PSQRT(x) SQRT(x)
 #include <source_NbodyOde.h>
 #undef PSQRT
-#undef BASENODE
-#undef HIGHNODE
+#undef BASE
+#undef HIGH
 
 }
 
@@ -689,13 +689,13 @@ void NbodyOde_high (int neq, highprec t,highprec ttau,
                     highprec *u,highprec *f,parameters_high *params)
 {
 
-#define BASENODE highprec
-#define HIGHNODE 1
+#define BASE highprec
+#define HIGH 1
 #define PSQRT(x) SQRT_high(x)
 #include <source_NbodyOde.h>
 #undef PSQRT
-#undef BASENODE
-#undef HIGHNODE
+#undef BASE
+#undef HIGH
 
 }
 

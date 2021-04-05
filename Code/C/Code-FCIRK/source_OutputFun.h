@@ -59,7 +59,7 @@
           }
           else
           {
-#if HIGH6 == 0
+#if HIGH == 0
                KeplerFlowAll (neq,Pkepler->keplerkop,&ux,-h/2,params);
 #else
                KeplerFlowAll_high (neq,Pkepler->keplerkop,&ux,-h/2,params);

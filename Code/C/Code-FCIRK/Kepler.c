@@ -67,11 +67,11 @@ inline int sign_high (highprec a)
 void KeplerFlowAll (int neq,int keplerkop, solution *u,
                     val_type h, parameters *params)
 {
-#define BASE2 val_type
-#define HIGH2 0
+#define BASE val_type
+#define HIGH 0
 #include <source_KeplerFlowAll.h>
-#undef BASE2
-#undef HIGH2
+#undef BASE
+#undef HIGH
 }
 
 
@@ -85,11 +85,11 @@ void KeplerFlowAll2 (int neq,int keplerkop, val_type *u,
                      val_type h, parameters *params)
 {
 
-#define BASE2B val_type
-#define HIGH2B 0
+#define BASE val_type
+#define HIGH 0
 #include <source_KeplerFlowAll2.h>
-#undef BASE2B
-#undef HIGH2B
+#undef BASE
+#undef HIGH
 
 }
 
@@ -103,11 +103,11 @@ void KeplerFlowAll2 (int neq,int keplerkop, val_type *u,
 void KeplerFlowAll_high (int neq,int keplerkop, solution *u,
                          highprec h, parameters *params)
 {
-#define BASE2 highprec
-#define HIGH2 1
+#define BASE highprec
+#define HIGH 1
 #include <source_KeplerFlowAll.h>
-#undef BASE2
-#undef HIGH2
+#undef BASE
+#undef HIGH
 }
 
 
@@ -122,13 +122,13 @@ void KeplerFlowAll_high (int neq,int keplerkop, solution *u,
 void KeplerFlow (val_type k, val_type *q,val_type *v,
                  val_type *dq,val_type *dv,val_type dt)
 {
-#define BASE3 val_type
+#define BASE val_type
 #define KSQRT(x) SQRT(x)
-#define HIGH3 0
+#define HIGH 0
 #include <source_KeplerFlow.h>
-#undef BASE3
+#undef BASE
 #undef KSQRT
-#undef HIGH3
+#undef HIGH
 }
 
 
@@ -142,13 +142,13 @@ void KeplerFlow (val_type k, val_type *q,val_type *v,
 void KeplerFlow_high (highprec k, highprec *q,highprec *v,
                       highprec *dq,highprec *dv,highprec dt)
 {
-#define BASE3 highprec
+#define BASE highprec
 #define KSQRT(x) SQRT_high(x)
-#define HIGH3 1
+#define HIGH 1
 #include <source_KeplerFlow.h>
-#undef BASE3
+#undef BASE
 #undef KSQRT
-#undef HIGH3
+#undef HIGH
 }
 
 
@@ -162,13 +162,13 @@ void KeplerFlow_high (highprec k, highprec *q,highprec *v,
 void KeplerFlowMIXED_high (highprec k, highprec *q,highprec *v,
                          highprec *dq,highprec *dv,highprec dt)
 {
-#define BASE3 highprec
+#define BASE highprec
 #define KSQRT(x) SQRT_high(x)
-#define HIGH3 1
+#define HIGH 1
 #include <source_KeplerFlowMIXED.h>
-#undef BASE3
+#undef BASE
 #undef KSQRT
-#undef HIGH3
+#undef HIGH
 }
 
 /************************************************************************************/
@@ -181,8 +181,8 @@ void KeplerSolveE (val_type r0, val_type gamma0, val_type eta0,
                    val_type beta, val_type k, val_type t,
                    val_type *X, val_type *G)
 {
-#define BASE4 val_type
-#define HIGH4 0
+#define BASE val_type
+#define HIGH 0
 #define KSQRT(x) SQRT(x)
 #define KSIN(x)  SIN(x)
 #define KCOS(x)  COS(x)
@@ -191,8 +191,8 @@ void KeplerSolveE (val_type r0, val_type gamma0, val_type eta0,
 #define KPOW(x,y) POW(x,y)		
 #define KTOL TOLKEPLER
 #include <source_KeplerSolveE.h>
-#undef BASE4
-#undef HIGH4
+#undef BASE
+#undef HIGH
 #undef KSQRT 
 #undef KSIN  
 #undef KCOS 
@@ -212,8 +212,8 @@ void KeplerSolveE_high (highprec r0, highprec gamma0, highprec eta0,
                         highprec beta, highprec k, highprec t,
                         highprec *X, highprec *G) 
 {
-#define BASE4 highprec
-#define HIGH4 1
+#define BASE highprec
+#define HIGH 1
 #define KSQRT(x) SQRT_high(x)
 #define KSIN(x)  SIN_high(x)
 #define KCOS(x)  COS_high(x)
@@ -222,8 +222,8 @@ void KeplerSolveE_high (highprec r0, highprec gamma0, highprec eta0,
 #define KPOW(x,y) POW_high(x,y)		
 #define KTOL TOLKEPLER_high
 #include <source_KeplerSolveE.h>
-#undef BASE4
-#undef HIGH4
+#undef BASE
+#undef HIGH
 #undef KSQRT 
 #undef KSIN  
 #undef KCOS  
@@ -247,16 +247,16 @@ void KeplerSolveITER_high (highprec r0, highprec gamma, highprec eta,
                             highprec beta, highprec k, highprec dt,
                             highprec *X, highprec *G) 
 {
-#define BASE4 highprec
-#define HIGH4 1
+#define BASE highprec
+#define HIGH 1
 #define KSQRT(x) SQRT_high(x)
 #define KSIN(x)  SIN_high(x)
 #define KCOS(x)  COS_high(x)
 #define KFABS(x) FABS_high(x)
 #define KTOL TOLKEPLER_high
 #include <source_KeplerSolveITER.h>
-#undef BASE4
-#undef HIGH4
+#undef BASE
+#undef HIGH
 #undef KSQRT 
 #undef KSIN  
 #undef KCOS  
@@ -278,11 +278,11 @@ void  KeplerFlowGFcn     (void GFcn(), int neq, val_type t,
                          val_type *k, parameters *params, val_type dt,
                          val_type *G)
 {
-#define BASEFWGF val_type
-#define HIGHFWGF 0
+#define BASE val_type
+#define HIGH 0
 #include <source_KeplerFlowGFcn.h>
-#undef BASEFWGF
-#undef HIGHFWGF
+#undef BASE
+#undef HIGH
 
 }
 
@@ -291,11 +291,11 @@ void  KeplerFlowGFcn_high (void GFcn(), int neq, highprec t,
                            highprec *k, parameters_high *params, highprec dt,
                            highprec *G)
 {
-#define BASEFWGF highprec
-#define HIGHFWGF 1
+#define BASE highprec
+#define HIGH 1
 #include <source_KeplerFlowGFcn.h>
-#undef BASEFWGF
-#undef HIGHFWGF
+#undef BASE
+#undef HIGH
 
 }
 
@@ -308,29 +308,28 @@ void  KeplerFlowGFcn_high (void GFcn(), int neq, highprec t,
 /************************************************************************************/
 
 
-
 void KeplerFlowGen    (val_type dt, val_type *Q, val_type *V, val_type k,
                        val_type *qq, val_type *vv, flowaux *aux)
 {
-#define BASEFGEN val_type
-#define HIGHFGEN 0
+#define BASE val_type
+#define HIGH 0
 #define KSQRT(x) SQRT(x)
 #include <source_KeplerFlowGen.h>
 #undef KSQRT
-#undef BASEFGEN
-#undef HIGHFGEN
+#undef BASE
+#undef HIGH
 }
 
 void KeplerFlowGen_high (highprec dt, highprec *Q, highprec *V, highprec k,
                          highprec *qq, highprec *vv, flowaux_high *aux)
 {
-#define BASEFGEN highprec
-#define HIGHFGEN 1
+#define BASE highprec
+#define HIGH 1
 #define KSQRT(x) SQRT_high(x)
 #include <source_KeplerFlowGen.h>
 #undef KSQRT
-#undef BASEFGEN
-#undef HIGHFGEN
+#undef BASE
+#undef HIGH
 }
 
 
@@ -341,27 +340,26 @@ void KeplerFlowGen_high (highprec dt, highprec *Q, highprec *V, highprec k,
 /*										    */
 /************************************************************************************/
 
-
 void KeplerFlowGFcnAux (val_type dt,val_type *Q, val_type *V, 
                         val_type *gq, val_type *gv,
                         flowaux *aux, val_type k, val_type *Gq, val_type *Gv)
 {
-#define BASEFGAux val_type
-#define HIGHFGAux 0
+#define BASE val_type
+#define HIGH 0
 #include <source_KeplerFlowGFcnAux.h>
-#undef BASEFGAux
-#undef HIGHFGAux
+#undef BASE
+#undef HIGH
 }
 
 void KeplerFlowGFcnAux_high (highprec dt,highprec *Q, highprec *V, 
                         highprec *gq, highprec *gv,
                         flowaux_high *aux, highprec k, highprec *Gq, highprec *Gv)
 {
-#define BASEFGAux highprec
-#define HIGHFGAux 1
+#define BASE highprec
+#define HIGH 1
 #include <source_KeplerFlowGFcnAux.h>
-#undef BASEFGAux
-#undef HIGHFGAux
+#undef BASE
+#undef HIGH
 }
 
 
@@ -375,11 +373,11 @@ void KeplerFlowGFcnAux_high (highprec dt,highprec *Q, highprec *V,
 
 void ProjFun   (int neq, val_type t, val_type h, solution *w, parameters *params)
 {
-#define BASE1 val_type
-#define HIGH1 0
+#define BASE val_type
+#define HIGH 0
 #include <source_ProjFun.h>
-#undef BASE1
-#undef HIGH1
+#undef BASE
+#undef HIGH
 }
 
 
@@ -393,11 +391,11 @@ void ProjFun   (int neq, val_type t, val_type h, solution *w, parameters *params
 
 void ProjFun_high (int neq, val_type t, val_type h, solution *w, parameters *params)
 {
-#define BASE1 highprec
-#define HIGH1 1
+#define BASE highprec
+#define HIGH 1
 #include <source_ProjFun.h>
-#undef BASE1
-#undef HIGH1
+#undef BASE
+#undef HIGH
 }
 
 /************************************************************************************/
@@ -410,21 +408,21 @@ void ProjFun_high (int neq, val_type t, val_type h, solution *w, parameters *par
 
 void StartFun  (int neq, val_type t, val_type h, solution *w, parameters *params)
 {
-#define BASE5 val_type
-#define HIGH5 0
+#define BASE val_type
+#define HIGH 0
 #include <source_StartFun.h>
-#undef BASE5
-#undef HIGH5
+#undef BASE
+#undef HIGH
 }
 
 
 void StartFun_high  (int neq, val_type t, val_type h, solution *w, parameters *params)
 {
-#define BASE5 highprec
-#define HIGH5 1
+#define BASE highprec
+#define HIGH 1
 #include <source_StartFun.h>
-#undef BASE5
-#undef HIGH5
+#undef BASE
+#undef HIGH
 }
 
 /******************************************************************************/
@@ -438,22 +436,22 @@ void OutputFun ( ode_sys *system, tcoeffs *method, val_type t,
                   val_type h, solution *w, tcache_stat *cache_stat,
                   parameters *params, toptions *options, FILE *myfile)
 {
-#define BASE6 val_type
-#define HIGH6 0
+#define BASE val_type
+#define HIGH 0
 #include <source_OutputFun.h>   
-#undef BASE6
-#undef HIGH6
+#undef BASE
+#undef HIGH
 }
 
 void OutputFun_high ( ode_sys *system, tcoeffs *method, val_type t, 
                        val_type h, solution *w, tcache_stat *cache_stat,
                        parameters *params, toptions *options, FILE *myfile)
 {
-#define BASE6 highprec
-#define HIGH6 1
+#define BASE highprec
+#define HIGH 1
 #include <source_OutputFun.h>   
-#undef BASE6
-#undef HIGH6
+#undef BASE
+#undef HIGH
 }
 
 

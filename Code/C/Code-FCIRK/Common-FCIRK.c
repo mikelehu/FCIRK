@@ -128,11 +128,11 @@ val_type NormalizedDistance ( int neq, int ns,
                               val_type *zold)
 {
 
-#define BASENORM val_type
-#define HIGHNORM 0
+#define BASE val_type
+#define HIGH 0
 #include <source_NormalizedDistance.h>
-#undef BASENORM
-#undef HIGHNORM
+#undef BASE
+#undef HIGH
 
 }
 
@@ -142,11 +142,11 @@ val_type NormalizedDistance_high ( int neq, int ns,
                                    highprec *zold)
 {
 
-#define BASENORM highprec
-#define HIGHNORM 1
+#define BASE highprec
+#define HIGH 1
 #include <source_NormalizedDistance.h>
-#undef BASENORM
-#undef HIGHNORM
+#undef BASE
+#undef HIGH
 
 }
 
@@ -163,11 +163,11 @@ void IRKstep_fixed         (  ode_sys *system,  solution *u,
                               tcache_stat *cache_stat, tcache_vars *cache_vars)
 {
 
-#define BASEIST val_type
-#define HIGHIST 0
+#define BASE val_type
+#define HIGH 0
 #include <source_IRKstep_fixed.h>
-#undef BASEIST
-#undef HIGHIST
+#undef BASE
+#undef HIGH
 
 }
 
@@ -179,11 +179,11 @@ void IRKstep_fixed_high   (   ode_sys_high *system,  solution *u,
                               tcache_stat *cache_stat, tcache_vars_high *cache_vars)
 {
 
-#define BASEIST highprec
-#define HIGHIST 1
+#define BASE highprec
+#define HIGH 1
 #include <source_IRKstep_fixed.h>
-#undef BASEIST
-#undef HIGHIST
+#undef BASE
+#undef HIGH
 
 }
 
@@ -398,11 +398,13 @@ int FP_Iteration     ( ode_sys *system,  solution *u,  val_type tn,
                          tcache_stat *cache_stat, tcache_vars *cache_vars,
                          int *D0, bool *iter0)
 {
-#define BASEFPI val_type
-#define HIGHFPI 0
+#define BASE val_type
+#define KFABS(x) FABS(x)
+#define HIGH 0
 #include <source_FP_iteration.h>
-#undef BASEFPI
-#undef HIGHFPI
+#undef BASE
+#undef KFABS
+#undef HIGH
 
 }
 
@@ -412,11 +414,13 @@ int FP_Iteration_high  ( ode_sys_high *system,  solution *u,  highprec tn,
                          tcache_stat *cache_stat, tcache_vars_high *cache_vars,
                          int *D0, bool *iter0)
 {
-#define BASEFPI highprec
-#define HIGHFPI 1
+#define BASE highprec
+#define KFABS(x) FABS_high(x)
+#define HIGH 1
 #include <source_FP_iteration.h>
-#undef BASEFPI
-#undef HIGHFPI
+#undef BASE
+#undef KFABS
+#undef HIGH
 
 }
 
@@ -433,11 +437,11 @@ void Summation                ( tcoeffs *gsmethod,
 
 {
 
-#define BASESUM val_type
-#define HIGHSUM 0
+#define BASE val_type
+#define HIGH 0
 #include <source_Summation.h>
-#undef BASESUM
-#undef HIGHSUM
+#undef BASE
+#undef HIGH
 
 }
 
@@ -448,11 +452,11 @@ void Summation_high            ( tcoeffs_h *gsmethod,
 
 {
 
-#define BASESUM highprec
-#define HIGHSUM 1
+#define BASE highprec
+#define HIGH 1
 #include <source_Summation.h>
-#undef BASESUM
-#undef HIGHSUM
+#undef BASE
+#undef HIGH
 
 }
 

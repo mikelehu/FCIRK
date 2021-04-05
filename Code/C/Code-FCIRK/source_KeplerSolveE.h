@@ -26,16 +26,16 @@
      int i;
      bool cont;
 
-     BASE4 nu,om;
-     BASE4 X0,x,dX,XX,dt,r;
-     BASE4 G3,zeta0,eta,alpha,tau;
-     BASE4 errX; 
-     BASE4 S,S2,C,W;
-     BASE4 a0,a1,a2,a3,a4,aux; 
-     BASE4 b0,b1,b2, P0,Pd0;
-     BASE4 c,c2,p,q,pb3,diskr;
-     BASE4 lag1,lag2,lag3;
-     BASE4 Xmin,Xmax;
+     BASE nu,om;
+     BASE X0,x,dX,XX,dt,r;
+     BASE G3,zeta0,eta,alpha,tau;
+     BASE errX; 
+     BASE S,S2,C,W;
+     BASE a0,a1,a2,a3,a4,aux; 
+     BASE b0,b1,b2, P0,Pd0;
+     BASE c,c2,p,q,pb3,diskr;
+     BASE lag1,lag2,lag3;
+     BASE Xmin,Xmax;
 
 
      int imax=100;
@@ -166,7 +166,7 @@
                    lag2=q+lag1;
                else lag2=q-lag1;
                lag3=-pb3/lag2;
-#if HIGH4 ==0  
+#if HIGH ==0  
                x=KPOW(lag2,1./3)+sign(lag3)*pow(KFABS(lag3),1./3);
 #else
                x=KPOW(lag2,1./3)+sign_high(lag3)*pow(KFABS(lag3),1./3);

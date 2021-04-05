@@ -8,7 +8,7 @@
 
 /*------ Declarations --------------------------------------------------------*/
 
-#if HIGHNFCN ==0 
+#if HIGH ==0 
    Pkepler_sys *Pkepler;
 #else
    Pkepler_sys_high *Pkepler;

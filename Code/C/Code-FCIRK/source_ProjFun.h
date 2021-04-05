@@ -14,7 +14,7 @@
 
      Pkepler=&params->Pkepler;
 
-#if HIGH1 == 0
+#if HIGH == 0
      KeplerFlowAll (neq,Pkepler->keplerkop,w,h,params);
 #else
      KeplerFlowAll_high (neq,Pkepler->keplerkop,w,h,params);

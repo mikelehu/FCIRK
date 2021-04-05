@@ -41,7 +41,7 @@
         aux->gamma=k/(aux->beta);
         aux->zeta=k-(aux->beta)*(aux->r0);
 
-#if HIGHFGEN ==0 
+#if HIGH ==0 
         KeplerSolveE(aux->r0,aux->gamma,aux->eta,aux->beta,k,dt,&aux->X,aux->GG);	
 #else
         KeplerSolveE_high(aux->r0,aux->gamma,aux->eta,aux->beta,k,dt,&aux->X,aux->GG);

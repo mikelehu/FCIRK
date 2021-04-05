@@ -13,12 +13,12 @@
 
      int i,id,i1,i2,j,j1,j2;
      int nd;
-     BASEDRR1 d3,da,qij[dim];
-     BASEDRR1 *Gm,GmSun,Gma[nbody];
+     BASE d3,da,qij[dim];
+     BASE *Gm,GmSun,Gma[nbody];
 
-     BASEDRR1 *mu,*k2;
+     BASE *mu,*k2;
 
-#if HIGHDRR1 ==0 
+#if HIGH ==0 
    Pkepler_sys *Pkepler;
 #else
    Pkepler_sys_high *Pkepler;

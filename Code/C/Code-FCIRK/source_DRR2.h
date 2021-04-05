@@ -16,18 +16,18 @@
      int i,id,i1,i2,j,j1,j2;
      int iM,iM1,iM2,iE,iE1,iE2;
      int nd;
-     BASEDRR2 aux1,aux2;
-     BASEDRR2 qa[dim],qb[dim];
-     BASEDRR2 qEM[dim],DqEM[dim];
+     BASE aux1,aux2;
+     BASE qa[dim],qb[dim];
+     BASE qEM[dim],DqEM[dim];
 
-     BASEDRR2 da,db;
-     BASEDRR2 *Gm,GmSun,Gma[nbody];
+     BASE da,db;
+     BASE *Gm,GmSun,Gma[nbody];
 
-     BASEDRR2 GQN[dim];
-     BASEDRR2 sub1[dim],sub2[dim],sub3[dim];
-     BASEDRR2 *mu,*k2;
+     BASE GQN[dim];
+     BASE sub1[dim],sub2[dim],sub3[dim];
+     BASE *mu,*k2;
 
-#if HIGHDRR2 ==0 
+#if HIGH ==0 
      Pkepler_sys *Pkepler;
 #else
      Pkepler_sys_high *Pkepler;
@@ -163,7 +163,7 @@
      /* Dvi i=N-1, i=N */
 
 
-#if HIGHDRR2 ==0 
+#if HIGH ==0 
      Mysubstract(&u[iE1],&u[iM1],sub1);
      Mysubstract(&u[iE1],GQN,sub2);
      Mysubstract(qEM,DqEM,sub3);

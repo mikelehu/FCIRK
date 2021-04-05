@@ -9,10 +9,10 @@
     int dim=3;
 
     int id;
-    BASESUBS a3;
+    BASE a3;
 
-    BASESUBS a,b;
-    BASESUBS l1,l2,l3,l4,l5,l6,l7,l8,l9;
+    BASE a,b;
+    BASE l1,l2,l3,l4,l5,l6,l7,l8,l9;
 
 /* ----- Implementation ------------------------------------------------------*/
 
