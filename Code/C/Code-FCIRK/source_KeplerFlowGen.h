@@ -5,7 +5,7 @@
 /* ----------------------------------------------------------------------------*/
 {
 
-     int id;
+     int id, iter;
      int dim=3;   
 
 
@@ -42,9 +42,9 @@
         aux->zeta=k-(aux->beta)*(aux->r0);
 
 #if HIGH ==0 
-        KeplerSolveE(aux->r0,aux->gamma,aux->eta,aux->beta,k,dt,&aux->X,aux->GG);	
+        KeplerSolveE(aux->r0,aux->eta,aux->zeta,aux->beta,k,dt,&aux->X,aux->GG,&iter);	
 #else
-        KeplerSolveE_high(aux->r0,aux->gamma,aux->eta,aux->beta,k,dt,&aux->X,aux->GG);
+        KeplerSolveE_high(aux->r0,aux->eta,aux->zeta,aux->beta,k,dt,&aux->X,aux->GG,&iter);
 #endif
         aux->r= (aux->r0)+(aux->eta)*aux->GG[1]+(aux->zeta)*aux->GG[2];	        
         aux->rinv=1/(aux->r);
@@ -63,7 +63,7 @@
      }
 
 
-#    ifdef MDEBUG
+#    ifdef NDEBUG
 
      int i;
      double xx;
@@ -71,14 +71,14 @@
      printf("KeplerFlowGen*******************\n");
 
 
-     printf("dt=%lg\n",dt);
+//     printf("dt=%lg\n",dt);
 
-     printf("r0=%lg,eta=%lg,alpha=%lg,beta=%lg,gamma=%lg,zeta=%lg\n",
-             aux->r0,aux->eta,aux->alpha,aux->beta,aux->gamma,aux->zeta);
-     printf("X=%lg,G0=%lg, G1=%lg, G2=%lg, r=%lg, rinv=%lg\n",
-             aux->X,aux->GG[0],aux->GG[1],aux->GG[2],aux->r,aux->rinv);
-     printf("b11=%lg, b12=%lg, b21=%lg, b22=%lg\n", 
-             aux->b[0],aux->b[1],aux->b[2],aux->b[3]);
+//     printf("r0=%lg,eta=%lg,alpha=%lg,beta=%lg,gamma=%lg,zeta=%lg\n",
+//             aux->r0,aux->eta,aux->alpha,aux->beta,aux->gamma,aux->zeta);
+//     printf("X=%lg,G0=%lg, G1=%lg, G2=%lg, r=%lg, rinv=%lg\n",
+//             aux->X,aux->GG[0],aux->GG[1],aux->GG[2],aux->r,aux->rinv);
+//     printf("b11=%lg, b12=%lg, b21=%lg, b22=%lg\n", 
+//             aux->b[0],aux->b[1],aux->b[2],aux->b[3]);
 
      printf("q,v=");
      for (i=0; i<dim; i++)

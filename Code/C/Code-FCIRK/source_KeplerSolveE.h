@@ -1,42 +1,26 @@
 /*-----------------------------------------------------------------------------*/
-/*									       */
-/*                        source_KeplerSolve.h	         		       */
-/*									       */
+/*									          */
+/*                        source_KeplerSolve.h	                         */
+/*   2021-06-18                                                                */
+/*									          */
 /* ----------------------------------------------------------------------------*/
 {
-/*   gamma X + eta G2 + zeta G3 == dt -----> X */
-
-/*
-
-  Elliptic case (beta>0)
-  F(X) := r0*G0 + eta0*G2 + k*G3 - t == 0 ->   X
-  F'(X) =  r0*G0 + eta*G1 + k*G2
-  |F''(X)| <= om := sqrt(eta^2 + (k -beta*r0)^2/beta) = k*e/sqrt(beta)
-  An initial guess X0 \approx X is obtained as the (exact or approximate) zero
-  of a cubic Taylor polynomial of F(X) centered at X = XX, where
-    - XX = 0.  if  the Kantorovich’s alpha(0) <= 0.1*e
-    - XX = 2*F(0)/F'(0)  if  alpha(0) <= 0.5*e
-   - XX = (beta*t - eta)/k  otherwise
-
-*/
 
 /*------ Declarations --------------------------------------------------------*/
 
 
-     int i;
      bool cont;
 
-     BASE nu,om;
-     BASE X0,x,dX,XX,dt,r;
-     BASE G3,zeta0,eta,alpha,tau;
+     BASE nu,nuinv,om,bom,betainv;
+     BASE X0,x,dX,discr;
+     BASE G3,alpha0,delta0,deltaX,lambda0,lambdaX;
      BASE errX; 
-     BASE S,S2,C,W;
-     BASE a0,a1,a2,a3,a4,aux; 
-     BASE b0,b1,b2, P0,Pd0;
+     BASE C,S,S2;
+     BASE a0,a1,a2,a3; 
      BASE c,c2,p,q,pb3,diskr;
-     BASE lag1,lag2,lag3;
+     BASE aux,lag1,lag2;
+     BASE F0,F0d,F0dd;
      BASE Xmin,Xmax;
-
 
      int imax=100;
 
@@ -70,179 +54,152 @@
    
      cont=true;
 
+
      nu=KSQRT(beta);
-     zeta0 =k-beta*r0;
-     om=KSQRT(eta0*eta0+zeta0*zeta0/beta);
-
-#ifdef TRACE
-     double e,E0,M0;
-     e = om*nu/k;
-     E0=KATAN2(nu*eta0,zeta0);
-     M0 = E0 - e*KSIN(E0); 
-     printf("M=%lg, E0=%lg, e=%lg \n", M0 + KPOW(nu,3)/k*t,E0,e);
-#endif
-
-
-     dX=t/r0;        // -F(0)/F'(0)
-     tau = k/nu*FABS(dX/r0);
-
-
-     if (tau<0.03)
-     { 
-         X0=0.; 
-         a0=-t;
-         a1=r0;
-         a2=eta0;
-         a3=zeta0;
-         i=0;   
-     } 
-      else
-     {
-          if (tau<0.5) X0=dX;
-          else X0=(beta*t-eta0)/k;
-
-          x=nu*X0;
-          G[0]=KCOS(x);
-          G[1]=KSIN(x)/nu;
-          G[2]=(1.-G[0])/beta;
-          G3=(X0-G[1])/beta;
-          a0=r0*G[1]+eta0*G[2]+k*G3-t;
-          aux=r0*G[0]+eta0*G[1];
-          a1=aux+k*G[2];
-          a2=eta0*G[0]+zeta0*G[1];
-          a3=-beta*aux+k*G[0];
-          i=1;
-     }
-
-
-
-
-#ifdef TRACE
-          printf("Taylor polynomial centered at EE0=%.20lg, X=%.20lg, tau=%.20lg, <=0.5 or <=0.03\n",
-                  E0+nu*X0,X0,tau); 
-#endif
-
-     if ((KFABS(a1*beta)>=0.4*k) || tau<=0.5)
-     { 
-           a2*=0.5;
-           a3*=0.16666666666666667;
-           a4=-beta*a2/12.;
-           dX=-a0/a1;     
-           dX=-a0/(a1+a2*dX);    // One Halley's iteration
-           b2=a3+dX*a4;
-           b1=a2+dX*b2;
-           b0=a1+dX*b1;
-           P0=a0+dX*b0;
-           Pd0=b0+dX*(b1+dX*(b2+dX*a4));
-           dX-=P0/Pd0;           // Newton iteration
-           X0+=dX;
-
-#ifdef TRACE
-           printf("Starting guess (approx.: X0 =%lg, dX=%lg, p(dX)=%lg\n", 
-                    X0,dX,a0+a1*dX+a2*dX*dX+a3*dX*dX*dX+a4*dX*dX*dX*dX);
-#endif
-     }
-      else
-     { 
-           if (a0==0 && a1==0)
-           {  
-#ifdef TRACE
-               printf("Success: E=%lg, X=%lg, errX=%lg, iters=%i\n",
-                       (E0 + KSQRT(beta)*X0),X0,0.,1);
-#endif
-               cont=false;
-           }
-           else
-           {
-               c=-a2/a3;
-               c2=c*c;
-               p=2.*a1/a3-c2;
-               q=-3.*a0/a3-c*(1.5*p+0.5*c2); 
-//             x^3 + 3*p*x - 2*q = 0  
-               pb3=p*p*p;
-               diskr=q*q+pb3;
-               lag1=KSQRT(diskr);
-               if (q>0)
-                   lag2=q+lag1;
-               else lag2=q-lag1;
-               lag3=-pb3/lag2;
-#if HIGH ==0  
-               x=KPOW(lag2,1./3)+sign(lag3)*pow(KFABS(lag3),1./3);
-#else
-               x=KPOW(lag2,1./3)+sign_high(lag3)*pow(KFABS(lag3),1./3);
-#endif
-               X0+=c+x;
-               X0+=dX;
-#ifdef TRACE
-               printf("Starting guess (Exact: X0 =%lg, dX=%lg, p(dX)=%lg\n ",
-                       X0,dX,a0+a1*dX+a2/2*dX*dX+a3/(6*dX*dX*dX));
-#endif         
-          }
-      }  
-
-
+     nuinv=1/nu;
+     betainv=1/beta;
+     bom=KSQRT(beta*eta*eta+zeta*zeta);  // sqrt(beta)*Omega
+     om= bom*nuinv;   // Omega
+     *iter=0;
+     delta0 = -t/r0;
+     alpha0 =om*KFABS(delta0/r0);
      
-      x=0.5*nu*X0;
-      KSINCOS(x,&S,&C);    
-      S2=2.*S;
-      W=S2*S;
-      G[0]=1.-W;
-      G[1]=S2*C/nu;
-      G[2]=W/beta;
-#ifdef TRACE
-      G3=(X0-G[1])/beta;
-      dt=t-(r0*G[1]+eta0*G[2]+k*G3);
-      r=r0*G[0]+eta0*G[1]+k*G[2];
-      dX=dt/r;
-      alpha=om*FABS(dX/r);
-      printf("alpha=%lg\n",alpha);
-      printf("i=%i, E=%.16lg, X=%.16lg\n",
-              i,E0+sqrt(beta)*X0,X0); 
-#endif
-    
-//   At this point, we have good starting values for (X)  
-     while (cont && i<imax)
-     {
-         G3=(X0-G[1])/beta;
-         dt=t-(r0*G[1]+eta0*G[2]+k*G3);
-         r=r0*G[0]+eta0*G[1]+k*G[2];
-         dX=dt/r;
-         i+=1;
-         alpha=om*FABS(dX/r);
-         errX=KFABS(0.52*alpha*dX);    // Error bound for Newton approximation,
-                                       // under the assumption that alpha <= 0.032
-         XX=X0+dX;
-         Xmin=XX-errX;
-         Xmax=XX+errX;
+//    Computation of initial guess X
 
-         if (Xmin==Xmax)
+     if (alpha0<=0.3 && nu*KFABS(delta0) <= 0.4)
+     { 
+         aux = eta/r0;
+         lambda0 = aux*delta0;
+ //       One super-Halley iteration with X0=0
+         X0= -(1 + lambda0/(2-2*lambda0))*delta0;
+     } 
+      else // Computation of alternative initial value X
+     {
+          X0 = (beta*t-eta)/k;
+          x = nu*X0;         
+          if (KFABS(x)>0.78)
+          {
+            KSINCOS(x,&S,&G[0]);         
+            G[1] = S*nuinv;
+            G[2]= (1 - G[0])*betainv;
+          }
+          else
+          {
+            KSINCOS(x/2,&S,&C);
+            S2 = S*S;
+            G[0] = 1 - 2*S2;
+            G[1] = 2*S*C*nuinv;
+            G[2]= 2*S2*betainv;
+          }
+
+          G3 = (X0-G[1])*betainv;
+          a0 = r0*X0 + eta*G[2] + zeta*G3 - t;
+          a1 = r0 + eta*G[1] + zeta*G[2];
+          a2 = eta*G[0] + zeta*G[1];
+          
+          if (KFABS(a1 * beta)>=0.63*k)
+          { 
+/*
+            Then, the solution of 
+            if abs(a1 * beta) >= 0.62546*k #Then, the solution of 
+            the quadratic equation a0 + a1* dX + a2/2 * dX^2 
+            that is closest to dX = -a0/a1  is computed
+*/        
+            discr = a1*a1-2*a0*a2;
+            dX = -2*a0/(a1 + KSQRT(discr));  
+#ifdef TRACE
+            printf("p2(dX)=%.16lg\n", a0 + a1* dX + a2/2 * dX*dX);
+#endif        
+            X0+=dX; 
+          }
+          else
+          {
+/*          Otherwise, the cubic equation 
+            a0 + a1* dX + a2/2 * dX^2 + a3/6 * dX^3 = 0 is solved
+*/            
+            a3 = -beta*eta*G[1] + zeta*G[0];
+            c = -a2/a3;
+            c2 = c*c;
+            p = 2*a1/a3 - c2;
+            q = -3*a0/a3 - c/2 * (3*p + c2);
+//           z^3 + 3*p*z - 2*q = 0;
+            pb3 = p*p*p;
+            diskr = q*q + pb3;
+            lag1 = KSQRT(diskr);            
+            if (q>0)   //cbrt
+                lag2=KPOW(q+lag1,1./3);
+            else lag2=KPOW(q-lag1,1./3);   
+            dX=c+lag2-p/lag2;	  
+ #ifdef TRACE
+            printf("p3(dX)=%.16lg\n", a0 + a1 * dX + a2/2 * dX*dX + a3/6 * dX*dX*dX );
+#endif                       
+            X0+=dX;                
+          }       
+        *iter+=1; 
+     }
+//       End of computation of initial guess
+                         
+     x=nu*X0;
+     if (KFABS(x)>=0.78)
+     { 
+         KSINCOS(x,&S,&G[0]);
+         G[1] = S*nuinv;
+         G[2] = (1-G[0])*betainv;
+     }
+     else
+     {
+         KSINCOS(x/2,&S,&C);
+         S2 = S*S;
+         G[0] = 1 - 2*S2;
+         G[1] = 2*S*C*nuinv;
+         G[2] = 2*S2*betainv;
+     }   
+             
+     G3 = (X0-G[1])*betainv;
+     cont = true;
+     
+     while (cont)
+     {
+         *iter+=1;
+         F0 = r0*X0 + eta*G[2] + zeta*G3 - t;
+         F0d = r0 + eta*G[1] + zeta*G[2];
+         F0dd = eta*G[0] + zeta*G[1];
+         deltaX = F0/F0d;
+         aux = F0dd/F0d;
+         lambdaX = aux*deltaX;
+         dX = -(1 + lambdaX/(2-2*lambdaX))*deltaX;
+         X0+= dX;   
+         errX = bom*KFABS(dX*dX*dX/F0d) + 3*aux*(dX+deltaX)*(dX+deltaX);
+         Xmin=X0-errX;
+         Xmax=X0+errX;
+#ifdef TRACE
+         printf("iter=%i, X=%.16lg, dX=%.16lg, errX=%.16lg, Xmin=%.16lg, Xmax=%.16lg\n", *iter,X0,dX,errX,Xmin,Xmax);
+#endif
+         x=nu*X0;
+         if (KFABS(x)>0.78)
          {
-           X0=XX;
-           cont = false;
-         } 
+            KSINCOS(x,&S,&G[0]);          
+            G[1] = S*nuinv;
+            G[2] = (1 - G[0])*betainv;
+         }
          else
          {
-           eta=eta0*G[0]+zeta0*G[1]; 
-           dX/=1.+0.5*dX*eta/r;
-           X0+=dX; 
+            KSINCOS(x/2,&S,&C);
+            S2 = S*S;
+            G[0] = 1 - 2*S2;
+            G[1] = 2*S*C*nuinv;
+            G[2] = 2*S2*betainv;
          }
-#ifdef TRACE
-         printf("i=%i, E=%lg, X=%lg, dE=%lg, alpha=%lg, errE=%lg\n",
-                 i,E0+KSQRT(beta)*X0,X0, dX*nu, alpha, errX*nu); 
-#endif
+         
+         G3 = (X0 - G[1])*betainv;
+         cont = (Xmin!=Xmax) && (*iter < imax);
 
-         x=0.5*nu*X0;     
-         KSINCOS(x,&S,&C);    
-         S2=2.*S;
-         W=S2*S;
-         G[0]=1.-W;
-         G[1]=S2*C/nu;
-         G[2]=W/beta; 
+     }  
 
-    }  
-
-
-    *X=X0;
+ //    r = r0 + eta*G[1] + zeta*G[2];   ez da erabiltzen
+     *X=X0;
+    
+    
 #ifdef MDEBUG
     double rx,gammax,etax,betax,kx,tx;
     if (i==imax)

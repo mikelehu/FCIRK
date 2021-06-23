@@ -45,30 +45,19 @@ void KeplerFlow_high
  highprec *dq,highprec *dv,highprec dt
 );
 
-void KeplerFlowMIXED_high 
-(highprec mu, highprec *q,highprec *v,
- highprec *dq,highprec *dv,highprec dt
-);
 
 void KeplerSolveE
-(val_type r0, val_type gamma, val_type eta, 
- val_type beta, val_type k, val_type dt,
- val_type *X, val_type *G
-); 
-
+(val_type r0, val_type eta, val_type zeta,  
+ val_type beta, val_type k, val_type t,
+ val_type *X, val_type *G, int *iter
+);
 
 void KeplerSolveE_high
-(highprec r0, highprec gamma, highprec eta, 
- highprec beta, highprec k, highprec dt,
- highprec *X, highprec *G
-); 
+(highprec r0, highprec eta, highprec zeta, 
+ highprec beta, highprec k, highprec t,
+ highprec *X, highprec *G, int *iter
+ ); 
 
-
-void KeplerSolveITER_high
-(highprec r0, highprec gamma, highprec eta, 
- highprec beta, highprec k, highprec dt,
- highprec *X, highprec *G
-);
 
 void  KeplerFlowGFcn 
 (void GFcn(), int neq, val_type t,

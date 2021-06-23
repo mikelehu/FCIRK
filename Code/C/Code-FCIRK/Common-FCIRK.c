@@ -6,11 +6,11 @@
 /*	 InitStat()							      */
 /*	 NormalizedDistance()						      */
 /*	 IRKstep_fixed()						      */
-/*	 FP_Iteration()		         				      */
+/*	 FP_Iteration()		         			      */
 /*	 Summation()							      */
-/*       deltafun	                                                      */
-/*       Ordinary_stepQ                                                       */
-/*       Num_steps                                                            */
+/*       deltafun	                                                    */
+/*       Ordinary_stepQ                                                    */
+/*       Num_steps                                                         */
 /*	 Main_FCIRK()							      */
 /*       								      */
 /* ---------------------------------------------------------------------------*/
@@ -181,6 +181,8 @@ void IRKstep_fixed_high   (   ode_sys_high *system,  solution *u,
 
 #define BASE highprec
 #define HIGH 1
+
+
 #include <source_IRKstep_fixed.h>
 #undef BASE
 #undef HIGH
@@ -374,7 +376,7 @@ void IRKstep_adaptive  (tode_sys *ode_system,solution *u,
              for (ki=0; ki<k; ki++)
              {
                   tj=tn+ki*hj;   
-                  IRKstep_fixed_high (&ode_system->system_h,u,tj,ki,hj,options,&method->coeffs_h,cache_stat,cache_vars_high);                   
+                  IRKstep_fixed_high (&ode_system->system_h,u,tj,ki,hj,options,&method->coeffs_h,cache_stat,cache_vars_high);                
              }
            }    
      }

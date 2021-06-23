@@ -8,10 +8,10 @@
 
 /*------ Declarations --------------------------------------------------------*/
 
-     int i;
+     int i, iter;
      int dim=3;
 
-     BASE r0,eta,alpha,beta,gamma;
+     BASE r0,eta,v02,alpha,beta;
      BASE zeta;           
      BASE r,rinv,X;
      BASE b[4],G[3];   
@@ -33,16 +33,17 @@
      {
        r0=KSQRT(q[0]*q[0]+q[1]*q[1]+q[2]*q[2]);
        eta=q[0]*v[0]+q[1]*v[1]+q[2]*v[2];
+       v02=(v[0]*v[0]+v[1]*v[1]+v[2]*v[2]);
        alpha=k/r0;
-       beta=2.*alpha-(v[0]*v[0]+v[1]*v[1]+v[2]*v[2]);
-       gamma=k/beta;
+       beta=2.*alpha-v02;
+//       gamma=k/beta;
        zeta=k-beta*r0;
 
   
 #if HIGH ==0
-       KeplerSolveE(r0,gamma,eta,beta,k,dt,&X,G);     
+       KeplerSolveE(r0,eta,zeta,beta,k,dt,&X,G,&iter);     
 #else
-       KeplerSolveE_high(r0,gamma,eta,beta,k,dt,&X,G); 
+       KeplerSolveE_high(r0,eta,zeta,beta,k,dt,&X,G,&iter); 
 #endif
        r= r0+eta*G[1]+zeta*G[2];   
        rinv=1./r;

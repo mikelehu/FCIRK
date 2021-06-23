@@ -42,6 +42,8 @@
 /* ----- Implementation ------------------------------------------------------*/
 
 
+
+
      z=cache_vars->z;
      zold=cache_vars->zold;
      fz=cache_vars->fz;

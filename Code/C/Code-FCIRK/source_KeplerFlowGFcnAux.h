@@ -21,15 +21,12 @@
         for (id=0; id<dim; id++)
         {
           Gq[id]=gq[id]-dt*gv[id];		
-          Gv[id]=gv[id];	
-		
+          Gv[id]=gv[id];			
         }
-
 
      }
      else
      {
-
 
         for (id=0; id<dim; id++)
         {
@@ -37,7 +34,6 @@
            Rqv[dim+id]=gq[id];     // (Rv1,Rv2,Rv3)<---( gq1, gq2, gq3)
 
         }
-
     
         betainv=1/aux->beta;
         r0inv=1/aux->r0;
@@ -98,7 +94,6 @@
         }
 #endif
      }
-
 
      return;
 

@@ -135,10 +135,10 @@
      }
 
 
-#ifdef  MDEBUG
+#ifdef  NDEBUG
 
 
-  printf("FP_Iteration\n");
+//  printf("FP_Iteration\n");
   printf("step=%i, iteration=%i, iter0=%i, D0=%i, plusIt=%i ****\n",
           cache_stat->stepcount, cache_stat->itcount, *iter0, DD0, plusIt); 
 #endif

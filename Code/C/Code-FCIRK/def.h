@@ -57,7 +57,7 @@ typedef long double highprec;
 #define SINCOS(x,s,c)  sincos(x,s,c)
 #define TAN(x)         tan(x)
 #define ATAN2(x)       atan2(x)
-#define FABS(x)	       fabs(x)
+#define FABS(x)	fabs(x)
 #define FMAX(x,y)      fmax(x,y)
 //
 #define POW_high(x, y)      powl(x, y)

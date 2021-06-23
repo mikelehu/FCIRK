@@ -12,10 +12,8 @@
 /*	   KeplerFlowAll_high							*/
 /*	   KeplerFlow								*/
 /*	   KeplerFlow_high							*/
-/*         KeplerFlowMIXED_high							*/
 /*	   KeplerSolveE								*/
 /*	   KeplerSolveE_high							*/
-/*	   KeplerSolveITER_high							*/
 /*	   KeplerFlowGFcn							*/
 /*         KeplerFlowGen							*/
 /*         KeplerFlowGFcnAux							*/
@@ -30,9 +28,7 @@
 /*										*/
 /*	   source_KeplerFlowAll.c						*/
 /*	   source_KeplerFlow.c							*/
-/*	   source_KeplerFlowMIXED.c					        */
 /*	   source_KeplerSolveE.c						*/
-/*	   source_KeplerSolveITER.c						*/
 /*	   source_ProjFun.c							*/
 /*	   source_StartFun.c							*/
 /*	   source_OutputFun.c							*/
@@ -152,24 +148,6 @@ void KeplerFlow_high (highprec k, highprec *q,highprec *v,
 }
 
 
-/************************************************************************************/
-/* 					   					    */
-/* KeplerFlowMIXED_high  		       	  			            */
-/*                                        					    */
-/*										    */
-/************************************************************************************/
-
-void KeplerFlowMIXED_high (highprec k, highprec *q,highprec *v,
-                         highprec *dq,highprec *dv,highprec dt)
-{
-#define BASE highprec
-#define KSQRT(x) SQRT_high(x)
-#define HIGH 1
-#include <source_KeplerFlowMIXED.h>
-#undef BASE
-#undef KSQRT
-#undef HIGH
-}
 
 /************************************************************************************/
 /* 					   					    */
@@ -177,9 +155,9 @@ void KeplerFlowMIXED_high (highprec k, highprec *q,highprec *v,
 /*                                        					    */
 /*										    */
 /************************************************************************************/
-void KeplerSolveE (val_type r0, val_type gamma0, val_type eta0, 
+void KeplerSolveE (val_type r0, val_type eta, val_type zeta,  
                    val_type beta, val_type k, val_type t,
-                   val_type *X, val_type *G)
+                   val_type *X, val_type *G, int *iter)
 {
 #define BASE val_type
 #define HIGH 0
@@ -208,10 +186,11 @@ void KeplerSolveE (val_type r0, val_type gamma0, val_type eta0,
 /*                                        					    */
 /*										    */
 /************************************************************************************/
-void KeplerSolveE_high (highprec r0, highprec gamma0, highprec eta0, 
+void KeplerSolveE_high (highprec r0, highprec eta, highprec zeta, 
                         highprec beta, highprec k, highprec t,
-                        highprec *X, highprec *G) 
+                        highprec *X, highprec *G, int *iter) 
 {
+#define LOW val_type
 #define BASE highprec
 #define HIGH 1
 #define KSQRT(x) SQRT_high(x)
@@ -221,7 +200,8 @@ void KeplerSolveE_high (highprec r0, highprec gamma0, highprec eta0,
 #define KFABS(x) FABS_high(x)
 #define KPOW(x,y) POW_high(x,y)		
 #define KTOL TOLKEPLER_high
-#include <source_KeplerSolveE.h>
+#include <source_KeplerSolveE_high.h>
+#undef LOW
 #undef BASE
 #undef HIGH
 #undef KSQRT 
@@ -234,36 +214,6 @@ void KeplerSolveE_high (highprec r0, highprec gamma0, highprec eta0,
 
 }
 
-
-/************************************************************************************/
-/* 					   					    */
-/* KeplerSolveITER_high 		      	  			            */
-/*                                        					    */
-/*										    */
-/************************************************************************************/
-
-
-void KeplerSolveITER_high (highprec r0, highprec gamma, highprec eta, 
-                            highprec beta, highprec k, highprec dt,
-                            highprec *X, highprec *G) 
-{
-#define BASE highprec
-#define HIGH 1
-#define KSQRT(x) SQRT_high(x)
-#define KSIN(x)  SIN_high(x)
-#define KCOS(x)  COS_high(x)
-#define KFABS(x) FABS_high(x)
-#define KTOL TOLKEPLER_high
-#include <source_KeplerSolveITER.h>
-#undef BASE
-#undef HIGH
-#undef KSQRT 
-#undef KSIN  
-#undef KCOS  
-#undef KFABS
-#undef KTOL
-
-}
 
 
 /************************************************************************************/

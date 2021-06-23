@@ -14,7 +14,7 @@
     nbody=neq/(2*dim);
 
 #ifdef DEBUG    
-    printf("adaptive=%B,neq=%i, Nkekepler=%i, Moreq=%i\n",adaptive,neq,Nkepler,Moreq);
+    printf("adaptive=%i,neq=%i, Nkekepler=%i, Moreq=%i\n",adaptive,neq,Nkepler,Moreq);
 #endif
  
 /*------ declarations --------------------------------------------------------*/

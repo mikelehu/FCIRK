@@ -28,7 +28,7 @@
 #endif
 
 
-#   ifdef DEBUGNBODYODE
+#ifdef NDEBUG
 
    printf("\nNbodyODe, neq=%i,keplerkop=%i\n",neq,Pkepler->keplerkop);
 

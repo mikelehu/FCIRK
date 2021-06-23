@@ -54,7 +54,7 @@
 
            ki=k[i];
 
-           KeplerFlowMIXED_high(ki,&ux[q1],&ux[p1],dr,dv,h);
+           KeplerFlow_high(ki,&ux[q1],&ux[p1],dr,dv,h);
 #endif
 
           for (id=0; id<dim; id++)

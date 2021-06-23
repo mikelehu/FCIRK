@@ -78,10 +78,6 @@ void UpdateGsCoefficients_high
      int ns=method->ns;
 
 
-#    ifdef DEBUG
-     double aux;
-#    endif
-
 
 /* ----- Implementation ------------------------------------------------------*/
 

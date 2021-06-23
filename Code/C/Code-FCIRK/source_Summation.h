@@ -32,6 +32,7 @@
 //---- High-prec computation of Li 
 
 
+
 #if HIGH ==0
     for (is=0; is<ns; is++)
     {
@@ -57,13 +58,19 @@
     for (i = 0; i<neq; i++) u->uul[i]=u->uu[i];
 
 
-#ifdef MDEBUG
+#ifdef NDEBUG
 
    double aux;
+//   double aux2;
 
    aux=0.;
-   for (i=0; i<neq; i++) aux+=u->uu[i]*u->uu[i];
-   printf("Norm(w)=%lg\n",sqrt(aux));
+   for (i=0; i<neq; i++) 
+   {
+//     aux2=u->uu[i];
+//     printf("%lg,",aux2);
+     aux+=u->uu[i]*u->uu[i];
+   }
+   printf("\nSummation Norm(w)=%lg\n",sqrt(aux));
 
 #endif
 
