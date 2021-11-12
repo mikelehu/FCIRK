@@ -26,11 +26,24 @@ void InitStat
 );
 
 
+void add2 
+(val_type x, val_type xx, val_type y, val_type yy,
+           val_type *z, val_type *zz
+);
+
 void InitStat_high
 (ode_sys_high *system, tcoeffs_h *gsmethod,
  tcache_vars_high *cache_vars
 );
 
+
+val_type Rmdigits
+(val_type x,val_type r
+);
+
+highprec Rmdigits_high 
+(highprec x,highprec r
+);
 
 val_type NormalizedDistance
 ( int neq, int ns, toptions *options,
@@ -69,14 +82,16 @@ void IRKstep_adaptive
 
 int FP_Iteration			
 ( ode_sys *system,  solution *u,  val_type tn,
-  int ii, val_type h,  tcoeffs *method,
+  int ii, val_type h, 
+  toptions *options, tcoeffs *method,
   tcache_stat *cache_stat, tcache_vars *cache_vars,
   int *D0, bool *iter0
 );
 
 int FP_Iteration_high
 ( ode_sys_high *system,  solution *u,  highprec tn,
-  int ii, highprec h,  tcoeffs_h *method,
+  int ii, highprec h, 
+  toptions *options, tcoeffs_h *method,
   tcache_stat *cache_stat, tcache_vars_high *cache_vars,
   int *D0, bool *iter0
 );

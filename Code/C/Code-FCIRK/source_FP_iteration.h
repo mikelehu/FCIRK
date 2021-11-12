@@ -14,7 +14,7 @@
 
      int neq,ns;
      BASE *z,*zold,*li,*fz,*DMin;
-     BASE *ttau;
+     BASE *ttau,nrm;
 
      neq=system->neq;
      ns=method->ns;
@@ -32,7 +32,7 @@
      DMin=cache_vars->DMin;
      ttau=method->ttau;
      params=&system->params;
-
+     nrm=options->nrmdigits;
 
 /*------ Declarations --------------------------------------------------------*/
 
@@ -60,7 +60,7 @@
            for (i = 0; i<neq; i++)
            {
                  in=isn+i;
-                 sum=method->m[ns*is]*li[i];
+                 sum=u->ee[i]+method->m[ns*is]*li[i];
                  for (js =1; js<ns; js++)
                  {
                        jsn=ns*is+js;
@@ -92,7 +92,11 @@
                in=isn+i;
                
                /* Stop Criterion */
-	       dY=KFABS(z[in]-zold[in]);
+#if HIGH ==0                
+	       dY=KFABS(Rmdigits(z[in],nrm)-Rmdigits(zold[in],nrm));
+#else
+	       dY=KFABS(Rmdigits_high(z[in],nrm)-Rmdigits_high(zold[in],nrm));
+#endif	       
 
                if (dY>0.)
                {

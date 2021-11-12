@@ -25,6 +25,9 @@
     tcoeffs gsmethod;
     tcoeffs_h gsmethod_high;
     solution u;
+    highprec uhigh;
+    val_type ulow;
+    
     toptions options;
     tode_sys ode_system;
     ode_sys system;
@@ -41,8 +44,6 @@
 
     val_type hq,t0q,t1q;
 
-
-
 /* ----------- implementation  --------------------------------------------*/
 
     mpfr_set_default_prec (256);  // BigFloat's default precision in Julia
@@ -56,13 +57,18 @@
     gsmethod.ns=ns;
     gsmethod_high.ns=ns;
 
-    u.uu = (highprec *)malloc(neq*sizeof(highprec));
+//    u.uu = (highprec *)malloc(neq*sizeof(highprec));
     u.uul = (val_type *)malloc(neq*sizeof(val_type));
+    u.ee = (val_type *)malloc(neq*sizeof(val_type));
 
     for (i=0; i<neq; i++)
     {
-       u.uu[i]=mpfr_get_float128(*(u0+i),MPFR_RNDN);      
-       u.uul[i]=u.uu[i];
+ 
+       uhigh=mpfr_get_float128(*(u0+i),MPFR_RNDN); 
+//       u.uu[i]=uhigh;      
+       u.uul[i]=uhigh; 
+       ulow=uhigh;
+       u.ee[i]=uhigh-ulow;
     }
 
     hq=h;
@@ -103,8 +109,8 @@
 /* -----------Parameters of the system -----------------------------------*/
 
     system.params.rpar =(val_type *)malloc(rlen*sizeof(val_type));
-    system.params.rparhigh =(__float128 *)malloc(rlen*sizeof(__float128));
-    system_high.params.rpar =(__float128 *)malloc(rlen*sizeof(__float128));
+    system.params.rparhigh =(highprec *)malloc(rlen*sizeof(highprec));
+    system_high.params.rpar =(highprec *)malloc(rlen*sizeof(highprec));
     system.params.ipar =(int *)malloc(ilen*sizeof(int));
     system_high.params.ipar =(int *)malloc(ilen*sizeof(int));
     system.params.numrpar=rlen;
@@ -150,13 +156,13 @@
 
     Pkepler.K =(val_type *)malloc(nbody*sizeof(val_type));
     Pkepler.K2 =(val_type *)malloc(nbody*sizeof(val_type));
-    Pkepler.Khigh =(__float128 *)malloc(nbody*sizeof(__float128));
+    Pkepler.Khigh =(highprec *)malloc(nbody*sizeof(highprec));
     Pkepler.Mu =(val_type *)malloc(nbody*sizeof(val_type));
-    Pkepler.Muhigh =(__float128 *)malloc(nbody*sizeof(__float128));
+    Pkepler.Muhigh =(highprec *)malloc(nbody*sizeof(highprec));
 
-    Pkepler_high.K =(__float128 *)malloc(nbody*sizeof(__float128));
-    Pkepler_high.K2 =(__float128 *)malloc(nbody*sizeof(__float128));
-    Pkepler_high.Mu =(__float128 *)malloc(nbody*sizeof(__float128));
+    Pkepler_high.K =(highprec *)malloc(nbody*sizeof(highprec));
+    Pkepler_high.K2 =(highprec *)malloc(nbody*sizeof(highprec));
+    Pkepler_high.Mu =(highprec *)malloc(nbody*sizeof(highprec));
 
     
     for (i=0; i<klen; i++)
@@ -288,7 +294,8 @@
     strncpy(options.filename, myfilename,STRMAX);
 
     options.adaptive=adaptive;
-
+    if (nrmbits>0) options.nrmdigits=POW(2,nrmbits);
+       else options.nrmdigits=0.; 
 
 /* ----------- Integration interval----------------------------------------*/
 
@@ -340,13 +347,15 @@
     result_array[7]=cache.cache_stat.totitcount;
     result_array[8]=cache.cache_stat.MaxDE;
     result_array[9]=cache.cache_stat.hstepcount;
+    result_array[10]=h;
 
     free(system.params.rpar);
     free(system.params.rparhigh);
     free(system.params.ipar);
 
-    free(u.uu);
+//    free(u.uu);
     free(u.uul);
+    free(u.ee);
 
     free(options.rtol);
     free(options.atol);

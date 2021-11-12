@@ -22,8 +22,10 @@
      {
           
             solution ux;
-            ux.uu = (highprec *)malloc((neq)*sizeof(highprec)); 
+//            ux.uu = (highprec *)malloc((neq)*sizeof(highprec)); 
             ux.uul = (val_type *)malloc((neq)*sizeof(val_type)); 
+            ux.ee = (val_type *)malloc((neq)*sizeof(val_type)); 
+            
             double DH;
             int i;
 
@@ -39,8 +41,9 @@
   
            for(i=0; i<neq; i++)
            {
-            ux.uu[i]=w->uu[i];
+//            ux.uu[i]=w->uu[i];
             ux.uul[i]=w->uul[i];
+            ux.ee[i]=w->ee[i];
            }
       
            if(cache_stat->stepcount==0)
@@ -76,7 +79,12 @@
 #endif
 
          my_record.t=t;
-         for (i=0; i<neq;i++) my_record.uu[i]=ux.uu[i];
+         for (i=0; i<neq;i++)
+         {
+          my_record.uu[i]=ux.uul[i];
+          my_record.uu[i]+=ux.ee[i];
+         
+         }
          fwrite(&my_record, sizeof(struct rec), 1, myfile);
 
 
@@ -100,8 +108,9 @@
 #        endif
 
 
-        free(ux.uu);
+//        free(ux.uu);
         free(ux.uul);
+        free(ux.ee);
 
      }
 

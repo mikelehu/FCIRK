@@ -4,6 +4,7 @@
 /*									      */
 /*	Functions: 							      */
 /*	 InitStat()							      */
+/*       add2					       		      */
 /*	 NormalizedDistance()						      */
 /*	 IRKstep_fixed()						      */
 /*	 FP_Iteration()		         			      */
@@ -74,6 +75,78 @@ void InitStat (ode_sys *system, tcoeffs *gsmethod,
 
 }
 
+
+/*************************************************************************************/
+/* 					   				                */
+/* add2  (Dekker)              	  			                       */
+/*                                        					       */
+/*                                        					       */
+/*     add2 calculates the doublelength sum of (x, xx) and (y, yy),                  */
+/*    the result being (z, zz) ;                                       	        */
+/*									               */
+/************************************************************************************/
+void add2 (val_type x, val_type xx, val_type y, val_type yy,
+           val_type *z, val_type *zz)
+{   
+/*------ declarations ---------------------------------------------------*/
+
+     val_type  s,r;
+
+/*------ implementaion --------------------------------------------------*/   
+ 
+     r=x+y;
+     if (FABS(x) > FABS(y))
+        s=x-r+y+yy+xx;
+     else
+        s=y-r+x+xx+yy;
+        
+     *z=r+s;
+     *zz=r-*z+s;                             
+ 
+     return;
+
+ }
+
+
+
+/******************************************************************************/
+/* 					   				      */
+/* Rmdigits      (31-10-2021)        	  				      */
+/*                                        				      */
+/*									      */
+/******************************************************************************/
+
+val_type Rmdigits (val_type x,val_type r)
+{
+  
+#define BASE val_type
+#define HIGH 0
+#include <source_Rmdigits.h>
+#undef BASE
+#undef HIGH
+
+}
+
+
+/******************************************************************************/
+/* 					   				      */
+/* Rmdigits_high      (31-10-2021)  	  				      */
+/*                                        				      */
+/*									      */
+/******************************************************************************/
+
+highprec Rmdigits_high (highprec x,highprec r)
+{
+
+#define BASE highprec
+#define HIGH 1
+#include <source_Rmdigits.h>
+#undef BASE
+#undef HIGH
+   
+
+
+}
 
 /******************************************************************************/
 /* 					   				      */
@@ -181,8 +254,6 @@ void IRKstep_fixed_high   (   ode_sys_high *system,  solution *u,
 
 #define BASE highprec
 #define HIGH 1
-
-
 #include <source_IRKstep_fixed.h>
 #undef BASE
 #undef HIGH
@@ -325,7 +396,8 @@ void IRKstep_adaptive  (tode_sys *ode_system,solution *u,
 
      while (iter0 && cache_stat->itcount<MAXIT)
      {
-           FP_Iteration (&ode_system->system,u,tn,ii,h,&method->coeffs,cache_stat,cache_vars,&D0, &iter0);      
+           FP_Iteration (&ode_system->system,u,tn,ii,h,
+                         options,&method->coeffs,cache_stat,cache_vars,&D0, &iter0);      
            cache_stat->itcount++;
 
      }
@@ -376,7 +448,8 @@ void IRKstep_adaptive  (tode_sys *ode_system,solution *u,
              for (ki=0; ki<k; ki++)
              {
                   tj=tn+ki*hj;   
-                  IRKstep_fixed_high (&ode_system->system_h,u,tj,ki,hj,options,&method->coeffs_h,cache_stat,cache_vars_high);                
+                  IRKstep_fixed_high (&ode_system->system_h,u,tj,ki,hj,options,
+                                      &method->coeffs_h,cache_stat,cache_vars_high);                
              }
            }    
      }
@@ -396,7 +469,7 @@ void IRKstep_adaptive  (tode_sys *ode_system,solution *u,
 
 
 int FP_Iteration     ( ode_sys *system,  solution *u,  val_type tn,
-                         int ii,val_type h,  tcoeffs *method,
+                         int ii,val_type h, toptions *options,  tcoeffs *method,
                          tcache_stat *cache_stat, tcache_vars *cache_vars,
                          int *D0, bool *iter0)
 {
@@ -412,7 +485,7 @@ int FP_Iteration     ( ode_sys *system,  solution *u,  val_type tn,
 
 
 int FP_Iteration_high  ( ode_sys_high *system,  solution *u,  highprec tn,
-                         int ii,highprec h,  tcoeffs_h *method,
+                         int ii,highprec h, toptions *options, tcoeffs_h *method,
                          tcache_stat *cache_stat, tcache_vars_high *cache_vars,
                          int *D0, bool *iter0)
 {
@@ -428,7 +501,7 @@ int FP_Iteration_high  ( ode_sys_high *system,  solution *u,  highprec tn,
 
 /******************************************************************************/
 /* 									      */
-/*    Summation								      */
+/*    Summation							      */
 /* 									      */
 /* 									      */
 /******************************************************************************/
@@ -451,12 +524,12 @@ void Summation                ( tcoeffs *gsmethod,
 void Summation_high            ( tcoeffs_h *gsmethod,
                                 solution *u, ode_sys_high *system,
                                 toptions *options, tcache_vars_high *cache_vars)
-
 {
-
+#define LOW val_type
 #define BASE highprec
 #define HIGH 1
 #include <source_Summation.h>
+#undef LOW
 #undef BASE
 #undef HIGH
 
@@ -750,7 +823,7 @@ void Main_FCIRK
 #ifdef IOUT
                options->TheOutput(&ode_system->system,&method->coeffs,tn,h,u,&cache->cache_stat,params,options,myfile);
 #endif
-               if (tn+h>=t1 && cache->cache_stat.laststep==false)
+               if (FABS(tn+h)>=FABS(t1) && cache->cache_stat.laststep==false)
                     cache->cache_stat.laststep=true;
 
           }

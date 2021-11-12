@@ -122,26 +122,43 @@ __float128 Ham_K (int nbody,solution *u, parameters *params)
 
 /*------ declarations -------------------------------------------------*/
 
-     __float128 *uu;
+     __float128 *uu, *k, *mu;
      int i,id,i1,i2;
-     int nd;
+     int nd,npar;
      __float128 Vi2,Qi,H;
 
-
     Pkepler_sys *Pkepler;
-    __float128 *k,*mu;
+
 
 /* ----------- implementation  ----------------------------------------*/
 
      Pkepler=&params->Pkepler;
-     k=Pkepler->Khigh;
-     mu=Pkepler->Muhigh;
+     npar=params->numrpar;
+//     k=Pkepler->Khigh;
+//     mu=Pkepler->Muhigh;
 
      dim=3;
      neq=nbody*2*dim;
      uu =(__float128 *)malloc(sizeof(__float128)*neq);
-
-     for (i=0; i<neq; i++)   uu[i]=u->uu[i];
+     for (i=0; i<neq; i++) 
+     {
+       uu[i]=u->uul[i];
+       uu[i]+=u->ee[i];
+     
+     }
+     
+     
+     k=(__float128 *)malloc(sizeof(__float128)*npar);
+     mu=(__float128 *)malloc(sizeof(__float128)*npar);
+     
+     for (i=0;i<npar; i++)
+     {
+         k[i]=Pkepler->Khigh[i];
+         mu[i]=Pkepler->Muhigh[i];
+     
+     }
+     
+     
 
      nd=nbody*dim;
      H=0.0;
@@ -164,6 +181,8 @@ __float128 Ham_K (int nbody,solution *u, parameters *params)
       }
 
      free(uu);
+     free(k);
+     free(mu);
 
      return(H);
 
@@ -192,7 +211,7 @@ __float128 RR1 (int neq,solution *u,parameters *params)
 
      __float128 uu[neq];
      int i,id,j,i1,i2,j1,j2;
-     int nd;
+     int nd,npar;
 
      __float128 d,ViVj;
      __float128 T,U,R;
@@ -206,15 +225,29 @@ __float128 RR1 (int neq,solution *u,parameters *params)
 /* ----------- implementation  ----------------------------------------*/
 
      Pkepler=&params->Pkepler;
-     mu=Pkepler->Muhigh;
+     npar=params->numrpar;
+//     mu=Pkepler->Muhigh;     
+//     Gm=params->rparhigh;
 
      nd=neq/2;
 
-     for (i=0; i<neq; i++)	uu[i]=u->uu[i];
-     Gm=params->rparhigh;
+     for (i=0; i<neq; i++)
+     {
+     	uu[i]=u->uul[i];
+     	uu[i]+=u->ee[i];
+     }
 
+     Gm=(__float128 *)malloc(sizeof(__float128)*npar);  
+     mu=(__float128 *)malloc(sizeof(__float128)*npar); 
+
+     for (i=0;i<npar; i++)
+     {
+         Gm[i]=params->rparhigh[i];
+         mu[i]=Pkepler->Muhigh[i];
+     }    
+     
      GmSun=Gm[0];
-     for (i=0; i<nbody; i++)    Gma[i]=Gm[i+1];
+     for (i=0; i<nbody; i++)    Gma[i]=Gm[i+1];  
 
      T=0.0;
      U=0.0;
@@ -240,6 +273,10 @@ __float128 RR1 (int neq,solution *u,parameters *params)
      }
 
      R=T/GmSun-U;
+     
+     free(mu);
+     free(Gm);
+     
      return(R);
 
 }
@@ -350,7 +387,7 @@ __float128 RR2 (int neq,solution *u,parameters *params)
      __float128 uu[neq];
      int i,id,j,i1,i2,j1,j2;
      int iM,iM1,iE,iE1;
-     int nd;
+     int nd,npar;
 
      __float128 da,db,dc,ViVj;
      __float128 T1,T2,T3,R;
@@ -362,11 +399,14 @@ __float128 RR2 (int neq,solution *u,parameters *params)
 
      Pkepler_sys *Pkepler;
      __float128 *mu;
+     
 
 /* ----- Implementation ------------------------------------------------------*/
 
      Pkepler=&params->Pkepler;
-     mu=Pkepler->Muhigh;
+     npar=params->numrpar;
+//     mu=Pkepler->Muhigh;     
+//     Gm=params->rparhigh;
 
      nd=neq/2;
 
@@ -375,10 +415,22 @@ __float128 RR2 (int neq,solution *u,parameters *params)
      iE=nbody-2;             // Earth
      iE1=iE*dim;
 
-     for (i=0; i<neq; i++) uu[i]=u->uu[i];
+     for (i=0; i<neq; i++) 
+     {
+         uu[i]=u->uul[i];
+         uu[i]+=u->ee[i];
+     }    
+     
+     Gm=(__float128 *)malloc(sizeof(__float128)*npar);  
+     mu=(__float128 *)malloc(sizeof(__float128)*npar); 
+
+     for (i=0;i<npar; i++)
+     {
+         Gm[i]=params->rparhigh[i];
+         mu[i]=Pkepler->Muhigh[i];
+     } 
 
 
-     Gm=params->rparhigh;
      GmSun=Gm[0];
      for (i=0; i<nbody; i++)  Gma[i]=Gm[i+1];
      GmEM=Gma[iM]/Gma[iE];
@@ -487,6 +539,10 @@ __float128 RR2 (int neq,solution *u,parameters *params)
 
 
 #endif
+
+     free(mu);
+     free(Gm);
+
      return(R);
 
 }

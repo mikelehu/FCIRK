@@ -99,9 +99,11 @@ void KeplerFlowAll2 (int neq,int keplerkop, val_type *u,
 void KeplerFlowAll_high (int neq,int keplerkop, solution *u,
                          highprec h, parameters *params)
 {
+#define LOW val_type
 #define BASE highprec
 #define HIGH 1
 #include <source_KeplerFlowAll.h>
+#undef LOW 
 #undef BASE
 #undef HIGH
 }

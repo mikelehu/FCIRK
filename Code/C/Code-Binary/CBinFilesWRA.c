@@ -2,9 +2,9 @@
 /*****************************************************************************/
 /*  File: CBinFilesWRA.c						     */
 /*  Content:					   			     */
-/*        CReadBin : read solution from a binary file			     */
-/*        CWriteBin:  write solution in a binary file			     */
-/*        CAppendBin: append solution in a binary file			     */
+/*        CReadBin : read solution from a binary file		     */
+/*        CWriteBin:  write solution in a binary file		     */
+/*        CAppendBin: append solution in a binary file		     */
 /*									     */
 /*  File format:                                                             */
 /*                                                                           */
@@ -15,9 +15,9 @@
 /*                                                                           */
 /*       where                                                               */
 /*	   t_i: real value						     */
-/*	   u_i:	vector of size neq.					     */
+/*	   u_i:	vector of size neq.				     */
 /*									     */
-/*       All data are given in quadruple precision                           */
+/*       All data are given in quadruple precision                        */
 /*									     */
 /*****************************************************************************/
 

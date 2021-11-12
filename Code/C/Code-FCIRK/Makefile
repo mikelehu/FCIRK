@@ -6,7 +6,8 @@
 #
 #    $ make all
 #
-# Generate three libraries:
+# Generate four libraries:
+#     libFCIRKDOUBLE2LONG: FCIRK-DL double-long mixed-precision      
 #     libFCIRKDOUBLE: FCIRK-DQ double-quad mixed-precision
 #     libFCIRKLONG:   FCIRK-LQ long-quad mixed-precision
 #     libFCIRKQUAD:   FCIRK-Q quadruple version.
@@ -30,6 +31,7 @@ LIBFLAGS=-L$(LIBPATH1)
 OMP_FLAGS=-fopenmp
 
 # Objects
+DOUBLE2LONGOBJECTS = Common-FCIRK.o Problems.o GaussCoefficients.o Kepler.o Julia_double_FCIRK.o
 DOUBLEOBJECTS = Common-FCIRK.o Problems.o GaussCoefficients.o Kepler.o Julia_double_FCIRK.o
 LONGOBJECTS = Common-FCIRK.o Problems.o GaussCoefficients.o Kepler.o Julia_long_FCIRK.o
 QUADOBJECTS = Common-FCIRK.o Problems.o GaussCoefficients.o Kepler.o Julia_quad_FCIRK.o
@@ -40,6 +42,7 @@ QUADOBJECTS = Common-FCIRK.o Problems.o GaussCoefficients.o Kepler.o Julia_quad_
 
 all :
 	make clean;
+	make double2long-FCIRK;
 	make double-FCIRK;
 	make long-FCIRK;
 	make quad-FCIRK;
@@ -51,6 +54,14 @@ all :
 # NODEBUG
 %.o: %.c def.h
 	${CC} -D NODEBUG -D IOUT -D PREC=$(MYPREC) -D PARALLEL -D MPFR_WANT_FLOAT128 -fPIC ${FLAGS} ${OMP_FLAGS} -c -I./  $<
+
+
+# PREC=1: double-long;
+double2long-FCIRK : MYPREC := 1
+double2long-FCIRK : $(DOUBLE2LONGOBJECTS)
+	${CC}  -shared -o libFCIRKDOUBLE2LONG.so -fPIC $(DOUBLE2LONGOBJECTS) $(LIBFLAGS) ${OMP_FLAGS} -lm -lrt -lstdc++ -luuid -ldl -lquadmath -lmpfr -lgmp; \
+	rm -rf *.o *~ core *tm.* *.exe 
+
 
 # PREC=2: double-quad;
 double-FCIRK : MYPREC := 2

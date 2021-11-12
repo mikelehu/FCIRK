@@ -38,6 +38,7 @@ int doubleFCIRK (int Nkepler,int Moreq,
                  int threads,
                  bool adaptive,
                  bool mixed,
+                 int nrmbits,
                  double *result_array)
 
 {

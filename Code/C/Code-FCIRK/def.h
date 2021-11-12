@@ -174,7 +174,7 @@ typedef __float128 highprec;
 typedef struct tcoeffs
    {
      int ns;
-     val_type *c,*b,*a;	 	 // c,b,a coefficients.
+     val_type *c,*b,*a;	  // c,b,a coefficients.
      val_type *m;	 	 // mij=aij/bj and mij+mji-1=0.
      val_type *hc;       	 // hc=h*c.
      val_type *hb;       	 // hb=h*b.
@@ -208,8 +208,9 @@ typedef struct tmethod
 
 typedef struct solution
   {
-     highprec *uu;
+//     highprec *uu;
      val_type *uul;
+     val_type *ee;
 
   } solution;
 
@@ -219,6 +220,7 @@ typedef struct toptions
      val_type *rtol,*atol;
      int sampling;
      bool adaptive;
+     val_type nrmdigits;         // 2^nrmbits
      char filename[STRMAX];     // Output filename.
      void (*TheOutput)();       // Output function.
 
@@ -234,9 +236,9 @@ typedef struct Pkepler_sys
      int keplerkop;
      val_type *K;           // OdeKepler real parameters
      val_type *K2;          
-     __float128 *Khigh;
+     highprec *Khigh;
      val_type *Mu;
-     __float128 *Muhigh;               
+     highprec *Muhigh;               
 
    }  Pkepler_sys;
 
@@ -254,7 +256,7 @@ typedef struct Pkepler_sys_high
 typedef struct parameters
    {
      val_type *rpar;	 // Variables for specifying odefun real parameters.
-     __float128 *rparhigh; 
+     highprec *rparhigh; 
      int numrpar;	 // Number of real parameters.
      int *ipar;          // Variables for specifying odefun integer parameters.
      int numipar;	 // Number of int parametes.
@@ -306,11 +308,11 @@ typedef struct tode_sys
 
 typedef struct tcache_stat
     {
-    int execution;            // SUCCESS or FAIL.
+    int execution;           // SUCCESS or FAIL.
     int convergence;	      // SUCCESS or FAIL.
     bool laststep;     
 
-    __float128 E0;     	      // Initial Energy
+    __float128 E0;           // Initial Energy
     double MaxDE; 	      // MaxDE=Abs(Ei-E0/E0)
     bool interpolate;        //  interpolate=true or interpolate=false
 

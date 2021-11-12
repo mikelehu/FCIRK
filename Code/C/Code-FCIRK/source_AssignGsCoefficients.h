@@ -18,7 +18,7 @@
      char filenameB[STRMAX];
      char filenameC[STRMAX];
 
-#    ifdef DEBUG
+#    ifdef XDEBUG
      double aux;
 #    endif
 
@@ -125,7 +125,7 @@
 
 /*---- Verify symplectic condition ---------------------------------------------*/
 
-#    ifdef DEBUG
+#    ifdef XDEBUG
      for (i=0; i<ns; i++)
      {
         printf("\n");

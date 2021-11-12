@@ -13,58 +13,80 @@
 
      val_type *k;
      BASE ki;
-     BASE dr[dim],dv[dim];
-     BASE *ux;
+     BASE dq[dim],dv[dim];
+     BASE ux[neq];
 
      Pkepler_sys *Pkepler;
-
 
 /* ----- Implementation ------------------------------------------------------*/
 
      Pkepler=&params->Pkepler;
 
 #if HIGH == 0
+     val_type  x,xx,y,yy;
      k=Pkepler->K;
-     ux=u->uul;   //low
 #else
-     k=Pkepler->K;
-     ux=u->uu;	//high     
+     LOW  x,xx,y,yy;	
+     k=Pkepler->K;    
 #endif
 
      nd=neq/2;
 
-
 #if HIGH == 0
+
+     for (i=0; i<neq; i++) ux[i]=u->uul[i];
 
      for (i = 0; i<keplerkop; i++)
      {
            q1=i*dim;
            p1=q1+nd;
 
-           ki=k[i];
-
-           KeplerFlow(ki,&ux[q1],&ux[p1],dr,dv,h);
+           ki=k[i];                       
+           KeplerFlow(ki,&ux[q1],&ux[p1],dq,dv,h);
 
 #else
 
+     for (i=0; i<neq; i++)
+     {      
+            ux[i]=u->uul[i];
+            ux[i]+=u->ee[i];
+     }  
+
      for (i = 0; i<keplerkop; i++)
      {
            q1=i*dim;
            p1=q1+nd;
 
            ki=k[i];
+           KeplerFlow_high(ki,&ux[q1],&ux[p1],dq,dv,h);
 
-           KeplerFlow_high(ki,&ux[q1],&ux[p1],dr,dv,h);
 #endif
 
           for (id=0; id<dim; id++)
           {
               i1=q1+id;
               i2=p1+id;
-              u->uu[i1]+=dr[id];
-              u->uu[i2]+=dv[id];
-              u->uul[i1]=u->uu[i1];
-              u->uul[i2]=u->uu[i2];
+
+//            u->uu[i1]+=dq[id];
+//            u->uu[i2]+=dv[id];
+//            u->uul[i1]=u->uu[i1];
+//            u->uul[i2]=u->uu[i2];
+              
+              x=u->uul[i1];
+              xx=u->ee[i1];
+              y=dq[id];
+              yy=dq[id]-y;
+              add2(x,xx,y,yy,&u->uul[i1],&u->ee[i1]);
+              
+              x=u->uul[i2];
+              xx=u->ee[i2];
+              y=dv[id];
+              yy=dv[id]-y;
+              add2(x,xx,y,yy,&u->uul[i2],&u->ee[i2]);
+              
+//            u->uu[i1]=u->uul[i1];    // behin-behinekoa 2021-11-02
+//            u->uu[i2]=u->uul[i2];    // behin-behinekoa 2021-11-02
+                          
           }
 
 

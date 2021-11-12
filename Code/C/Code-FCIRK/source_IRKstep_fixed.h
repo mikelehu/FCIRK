@@ -1,6 +1,6 @@
 /*-----------------------------------------------------------------------------*/
 /*									       */
-/*                        source_IRKstep_fixed.h	       		       */
+/*                        source_IRKstep_fixed.h	       	       */
 /*									       */
 /* ----------------------------------------------------------------------------*/
 
@@ -142,9 +142,9 @@
      while (iter0 && cache_stat->itcount<MAXIT)
      {
 #if HIGH ==0 
-           FP_Iteration (system,u,tn,ii,h,method,cache_stat,cache_vars,&D0, &iter0); 
+           FP_Iteration (system,u,tn,ii,h,options,method,cache_stat,cache_vars,&D0, &iter0); 
 #else
-           FP_Iteration_high (system,u,tn,ii,h,method,cache_stat,cache_vars,&D0, &iter0);
+           FP_Iteration_high (system,u,tn,ii,h,options,method,cache_stat,cache_vars,&D0, &iter0);
 #endif     
            cache_stat->itcount++;
 
