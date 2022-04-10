@@ -22,9 +22,9 @@
 
 
 #if HIGH ==0 
-   KeplerFlowGFcn (NbodyGFcn,neq,t,u,Pkepler->keplerkop,k,params,ttau,f);   
+   KeplerFlowGFcn (NbodyGFcn,neq,t,u,Pkepler->keplerkop,k,params,ttau,f,cache_vars);   
 #else
-   KeplerFlowGFcn_high (NbodyGFcn_high,neq,t,u,Pkepler->keplerkop,k,params,ttau,f);  
+   KeplerFlowGFcn_high (NbodyGFcn_high,neq,t,u,Pkepler->keplerkop,k,params,ttau,f,cache_vars_high);  
 #endif
 
 

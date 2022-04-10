@@ -53,7 +53,7 @@ all :
 #-D DEBUG:  Active general debug
 # NODEBUG
 %.o: %.c def.h
-	${CC} -D NODEBUG -D IOUT -D PREC=$(MYPREC) -D PARALLEL -D MPFR_WANT_FLOAT128 -fPIC ${FLAGS} ${OMP_FLAGS} -c -I./  $<
+	${CC} -D DEBUG -D IOUT -D PREC=$(MYPREC) -D PARALLEL -D MPFR_WANT_FLOAT128 -fPIC ${FLAGS} ${OMP_FLAGS} -c -I./  $<
 
 
 # PREC=1: double-long;

@@ -1,11 +1,11 @@
 /*------------------------------------------------------------------------------*/
-/*										*/
-/*         GaussCoefficients.c							*/
-/*              Read in quadruple precision from a binary file,                 */						
-/*		Implicit Runge-Kutta (based Gauss quadrature)  coefficients.    */
-/*              s=2, s=6, s=8, s=9, s=12                                        */
-/*              			                                        */
-/*              	Method's coefficients: m,a,b,c.                         */
+/*										    */
+/*         GaussCoefficients.c					            */
+/*              Read in quadruple precision from a binary file,                  */						
+/*		Implicit Runge-Kutta (based Gauss quadrature)  coefficients.     */
+/*              s=2, s=6, s=8, s=9, s=12                                         */
+/*              			                                          */
+/*              	Method's coefficients: m,a,b,c.                          */
 /*                      Interpolate coefficients: lambda                        */
 /*                                                                              */
 /*                                                                              */

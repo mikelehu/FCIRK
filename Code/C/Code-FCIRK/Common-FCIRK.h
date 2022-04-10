@@ -31,6 +31,11 @@ void add2
            val_type *z, val_type *zz
 );
 
+void sub2 
+(val_type x, val_type xx, val_type y, val_type yy,
+           val_type *z, val_type *zz
+);
+
 void InitStat_high
 (ode_sys_high *system, tcoeffs_h *gsmethod,
  tcache_vars_high *cache_vars
@@ -110,27 +115,50 @@ void Summation_high
   toptions *options, tcache_vars_high *cache_vars
 );
 
+void UnSummation
+( tcoeffs *gsmethod,
+  solution *u,
+  ode_sys *system,  toptions *options,
+  tcache_vars *cache_vars
+);
+
+
+void UnSummation_high
+( tcoeffs_h *gsmethod,
+  solution *u, ode_sys_high *system,
+  toptions *options, tcache_vars_high *cache_vars
+);
+
+
 
 void deltafun
 ( tcoeffs *gsmethod, ode_sys *system,
   tcache_vars *cache_vars, val_type *delta
 );
 
-bool Ordinary_stepQ 
-( ode_sys *system,
-  val_type h,
-  int k,
-  tcache_stat *cache_stat, 
-  tcache_vars *cache_vars
-);
 
-int Num_steps 
-( tcoeffs *gsmethod,
-  ode_sys *system,
-  tcache_stat *cache_stat,
-  tcache_vars *cache_vars
-);
+val_type Rad_Convergence1
+ (ode_sys *system,
+  tcache_vars *cache_vars,
+  solution *U);
 
+val_type Rad_Convergence2
+ (ode_sys *system,
+  tcache_vars *cache_vars,
+  solution *U);
+
+val_type Rad_Convergence3
+ (ode_sys *system,
+  tcache_vars *cache_vars,
+  solution *U);
+
+val_type Rad_Convergence
+(ode_sys *system,
+ tcache_vars *cache_vars,
+ solution *U,
+ void ChangeHeltoBar(),
+ bool exc_Moon);
+ 
 
 void Main_FCIRK
 ( val_type t0, val_type t1, val_type h, 

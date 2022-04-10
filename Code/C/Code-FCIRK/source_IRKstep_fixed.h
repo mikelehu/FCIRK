@@ -34,15 +34,13 @@
      coef=method->nu;  
      params=&system->params;
      Pkepler=&params->Pkepler;
+         
 #else
      parameters_high *params;
      params=&system->params;
 #endif
 
 /* ----- Implementation ------------------------------------------------------*/
-
-
-
 
      z=cache_vars->z;
      zold=cache_vars->zold;
@@ -52,6 +50,8 @@
      ttau=method->ttau;    
 
 
+     
+
 /* --- Interpolation ---------------------------------------------------------*/
 
     if (cache_stat->interpolate !=true)
@@ -60,7 +60,7 @@
         for (is = 0; is<ns; is++)
         {
             in=is*neq;
-            for (i = 0; i<neq; i++) z[in+i]=u->uul[i];
+            for (i = 0; i<neq; i++) z[in+i]=u->uu[i];
         }
     }
 
@@ -92,7 +92,7 @@
               }
 
              jsn=(ns+1)*is+ns;
-             z[in+i]=sum+u->uul[i]*coef[jsn];
+             z[in+i]=sum+u->uu[i]*coef[jsn];
 
           }
        }
@@ -101,7 +101,7 @@
       for (is = 0; is<ns; is++)
       {
             in=is*neq;
-            for (i = 0; i<neq; i++) z[in+i]=u->uul[i];
+            for (i = 0; i<neq; i++) z[in+i]=u->uu[i];
       }
 #endif
      } 
@@ -133,7 +133,7 @@
            isn=neq*is;
            ismi=ism+is;
            cache_stat->fcn++;  
-           system->f(neq,tn+method->hc[is],ttau[ismi],&z[isn],&fz[isn],params);
+           system->f(neq,tn+method->hc[is],ttau[ismi],&z[isn],&fz[isn],params,cache_vars);
            for (i=0; i<neq; i++) li[isn+i]=fz[isn+i]*method->hb[is];
      }    
 
@@ -181,7 +181,16 @@
 
      if (cache_stat->convergence!=FAIL)
 #if HIGH ==0
+     {                 
          Summation (method,u,system,options,cache_vars);
+
+         cache_vars->RC=system->rc_fun(system,cache_vars,u); 
+         cache_vars->RCSum+=cache_vars->RC;
+         cache_vars->RCSum2+=(cache_vars->RC)*(cache_vars->RC);
+         if (cache_vars->RC>cache_vars->MaxRC) cache_vars->MaxRC=cache_vars->RC;
+         if (cache_vars->RC<cache_vars->MinRC) cache_vars->MinRC=cache_vars->RC;
+
+     }    
 #else
          Summation_high (method,u,system,options,cache_vars);
 #endif 

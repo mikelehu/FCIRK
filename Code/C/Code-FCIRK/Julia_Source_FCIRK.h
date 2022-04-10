@@ -1,7 +1,7 @@
 /*-----------------------------------------------------------------------------*/
-/*									       */
-/*                        Julia_Source_FCIRK.h	         		       */
-/*									       */
+/*									         */
+/*                        Julia_Source_FCIRK.h	            	         */
+/*									         */
 /* ----------------------------------------------------------------------------*/
 {
 
@@ -14,7 +14,9 @@
     nbody=neq/(2*dim);
 
 #ifdef DEBUG    
-    printf("adaptive=%i,neq=%i, Nkekepler=%i, Moreq=%i\n",adaptive,neq,Nkepler,Moreq);
+    printf("threads=%i,adaptive=%i,neq=%i, Nkekepler=%i, Moreq=%i\n",
+            threads,adaptive,neq,Nkepler,Moreq);
+    printf("rlen=%i\n",rlen);
 #endif
  
 /*------ declarations --------------------------------------------------------*/
@@ -57,16 +59,14 @@
     gsmethod.ns=ns;
     gsmethod_high.ns=ns;
 
-//    u.uu = (highprec *)malloc(neq*sizeof(highprec));
-    u.uul = (val_type *)malloc(neq*sizeof(val_type));
+    u.uu = (val_type *)malloc(neq*sizeof(val_type));
     u.ee = (val_type *)malloc(neq*sizeof(val_type));
 
     for (i=0; i<neq; i++)
     {
  
-       uhigh=mpfr_get_float128(*(u0+i),MPFR_RNDN); 
-//       u.uu[i]=uhigh;      
-       u.uul[i]=uhigh; 
+       uhigh=mpfr_get_float128(*(u0+i),MPFR_RNDN);  
+       u.uu[i]=uhigh; 
        ulow=uhigh;
        u.ee[i]=uhigh-ulow;
     }
@@ -77,6 +77,12 @@
 
 
 #ifdef INITVALUES
+
+
+   int n;
+   int width = 40;  
+   char buf[128];
+
    printf("Initial values: position\n");
    int id;
    for (i=0; i<nbody; i++)
@@ -128,9 +134,6 @@
 
 #ifdef INITVALUES
 
-     int n;
-     int width = 40;  
-     char buf[128];
 
      printf("Rpar\n");
      for(i=0; i<rlen; i++)
@@ -193,15 +196,17 @@
     switch (ode)
     {
 
-     case 1: 			
+     case 1: 	// 10-Body, 15-Body Problem		
 
            system.f = NbodyOde;
+           system.rc_fun=Rad_Convergence1;
            Pkepler.RR=RR1;	      
            Pkepler.DRR=DRR1; 
            Pkepler.KComputation=KComp1;     
            system.ham= HamNbody;
 
            system_high.f=NbodyOde_high;
+           system_high.rc_fun=Rad_Convergence1;
            Pkepler_high.RR=RR1;	      
            Pkepler_high.DRR=DRR1_high;    
            system_high.ham= HamNbody;
@@ -209,15 +214,35 @@
 
      break;
 
-     case 2: 			     
+     case 2: // 16-Body Problem		     
  
            system.f = NbodyOde;
+           system.rc_fun=Rad_Convergence2;
            Pkepler.RR=RR2;	      
            Pkepler.DRR=DRR2; 
            Pkepler.KComputation=KComp2;     
            system.ham= HamNbody;
 
            system_high.f=NbodyOde_high;
+           system_high.rc_fun=Rad_Convergence2;
+           Pkepler_high.RR=RR2;	      
+           Pkepler_high.DRR=DRR2_high;    
+           system_high.ham= HamNbody;
+
+
+     break;
+     
+     case 3: // 16-Body Problem (Rad_Convergence3!!!)		     
+ 
+           system.f = NbodyOde;
+           system.rc_fun=Rad_Convergence3;
+           Pkepler.RR=RR2;	      
+           Pkepler.DRR=DRR2; 
+           Pkepler.KComputation=KComp2;     
+           system.ham= HamNbody;
+
+           system_high.f=NbodyOde_high;
+           system_high.rc_fun=Rad_Convergence3;
            Pkepler_high.RR=RR2;	      
            Pkepler_high.DRR=DRR2_high;    
            system_high.ham= HamNbody;
@@ -300,6 +325,11 @@
 /* ----------- Integration interval----------------------------------------*/
 
     options.sampling=sampling;
+    
+
+/* ----------- Monitoring error local -----------------------------------------*/   
+
+    options.errorsL=monitoring_err; 
 
 /* ----------- Integration of the problem  ------------------------------------*/
 
@@ -353,8 +383,7 @@
     free(system.params.rparhigh);
     free(system.params.ipar);
 
-//    free(u.uu);
-    free(u.uul);
+    free(u.uu);
     free(u.ee);
 
     free(options.rtol);
@@ -374,8 +403,11 @@
     free(cache_vars.fz);
     free(cache_vars.zold);
     free(cache_vars.DMin);
-    free(cache_vars.delta);
-    free(cache_vars.avg_delta);
+
+    free(cache_vars.KK);
+    free(cache_vars.ux1);
+    free(cache_vars.ux2);
+    free(cache_vars.uB);
 
     if (adaptive==true)
     {
@@ -384,6 +416,8 @@
          free(cache_vars_high.fz);
          free(cache_vars_high.zold);
          free(cache_vars_high.DMin);
+         free(cache_vars_high.ux1);
+         free(cache_vars_high.ux2);
     }
 
     free(Pkepler.K);

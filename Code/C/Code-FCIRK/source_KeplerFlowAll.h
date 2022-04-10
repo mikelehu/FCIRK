@@ -34,7 +34,7 @@
 
 #if HIGH == 0
 
-     for (i=0; i<neq; i++) ux[i]=u->uul[i];
+     for (i=0; i<neq; i++) ux[i]=u->uu[i];
 
      for (i = 0; i<keplerkop; i++)
      {
@@ -48,7 +48,7 @@
 
      for (i=0; i<neq; i++)
      {      
-            ux[i]=u->uul[i];
+            ux[i]=u->uu[i];
             ux[i]+=u->ee[i];
      }  
 
@@ -66,26 +66,20 @@
           {
               i1=q1+id;
               i2=p1+id;
-
-//            u->uu[i1]+=dq[id];
-//            u->uu[i2]+=dv[id];
-//            u->uul[i1]=u->uu[i1];
-//            u->uul[i2]=u->uu[i2];
-              
-              x=u->uul[i1];
+             
+              x=u->uu[i1];
               xx=u->ee[i1];
               y=dq[id];
               yy=dq[id]-y;
-              add2(x,xx,y,yy,&u->uul[i1],&u->ee[i1]);
+              add2(x,xx,y,yy,&u->uu[i1],&u->ee[i1]);
               
-              x=u->uul[i2];
+              x=u->uu[i2];
               xx=u->ee[i2];
               y=dv[id];
               yy=dv[id]-y;
-              add2(x,xx,y,yy,&u->uul[i2],&u->ee[i2]);
+              add2(x,xx,y,yy,&u->uu[i2],&u->ee[i2]);
               
-//            u->uu[i1]=u->uul[i1];    // behin-behinekoa 2021-11-02
-//            u->uu[i2]=u->uul[i2];    // behin-behinekoa 2021-11-02
+
                           
           }
 

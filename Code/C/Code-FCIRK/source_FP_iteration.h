@@ -69,7 +69,7 @@
                  }
 
                  zold[in]=z[in];
-                 z[in]=u->uul[i]+sum;
+                 z[in]=u->uu[i]+sum;
            }
      }
 
@@ -106,10 +106,18 @@
                         DMin[in]=dY;
                         cont =true;
                   }
+                  else if (dY>FABS(z[in])*1e-8)
+                  {
+                        cont =true;  
+                  }
                }
                else
                {
                   DD0++;
+
+//               2021-11-22 Rmdigits segurua izateko                              
+	          if (KFABS(z[in]-zold[in])>0.) eval=true;	 
+               
                }   
 
            }  
@@ -117,7 +125,7 @@
            if (eval)
            {
               myfcn++;
-              system->f(neq,tn+method->hc[is],ttau[ismi],&z[isn],&fz[isn],params);
+              system->f(neq,tn+method->hc[is],ttau[ismi],&z[isn],&fz[isn],params,cache_vars);
 
               for (i=0; i<neq; i++)
               {

@@ -12,6 +12,7 @@
 
      BASE u[neq],g[neq];
 
+
 #if HIGH ==0 
      flowaux aux[keplerkop];
 #else

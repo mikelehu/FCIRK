@@ -63,7 +63,7 @@ void  KeplerFlowGFcn
 (void GFcn(), int neq, val_type t,
  val_type *U, int keplerkop,
  val_type *k, parameters *params, val_type dt,
- val_type *G
+ val_type *G,tcache_vars *cache_vars
 );
 
 
@@ -71,7 +71,7 @@ void  KeplerFlowGFcn_high
 (void GFcn(), int neq, highprec t,
  highprec *U, int keplerkop,
  highprec *k, parameters_high *params, highprec dt,
- highprec *G
+ highprec *G,tcache_vars_high *cache_vars
 );
 
 void KeplerFlowGen 
@@ -118,15 +118,19 @@ void StartFun_high
 void OutputFun 
 ( ode_sys *system,  tcoeffs *method,
   val_type t, val_type h, solution *w,
-  tcache_stat *cache_stat,
-  parameters *params, toptions *options,FILE *loga
+  tcache_stat *cache_stat,tcache_vars *cache_vars,
+  parameters *params, toptions *options,FILE *loga,
+  FILE *myfileRC, FILE *myfileER,
+  highprec *errj
 );
 
 void OutputFun_high 
 ( ode_sys *system,  tcoeffs *method,
   val_type t, val_type h, solution *w,
-  tcache_stat *cache_stat,
-  parameters *params, toptions *options,FILE *loga
+  tcache_stat *cache_stat,tcache_vars *cache_vars,
+  parameters *params, toptions *options,FILE *loga,
+  FILE *myfileRC, FILE *myfileER,
+  highprec *errj
 );
 
 

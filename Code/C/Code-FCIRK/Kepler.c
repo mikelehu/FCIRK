@@ -1,10 +1,10 @@
 /*------------------------------------------------------------------------------*/
 /*										*/
-/*     Kepler.c									*/
+/*     Kepler.c								*/
 /*										*/
 /*	Functions:								*/
 /*										*/
-/*	   sign									*/
+/*	   sign								*/
 /*	   sign_high								*/
 /*										*/
 /*         KeplerFlowAll()							*/
@@ -12,13 +12,13 @@
 /*	   KeplerFlowAll_high							*/
 /*	   KeplerFlow								*/
 /*	   KeplerFlow_high							*/
-/*	   KeplerSolveE								*/
+/*	   KeplerSolveE							*/
 /*	   KeplerSolveE_high							*/
 /*	   KeplerFlowGFcn							*/
 /*         KeplerFlowGen							*/
 /*         KeplerFlowGFcnAux							*/
 /*	   ProjFun								*/
-/*	   ProjFun_high								*/
+/*	   ProjFun_high							*/
 /*	   StartFun								*/
 /*	   StartFun_high						        */
 /*	   OutputFun								*/
@@ -228,7 +228,7 @@ void KeplerSolveE_high (highprec r0, highprec eta, highprec zeta,
 void  KeplerFlowGFcn     (void GFcn(), int neq, val_type t,
                          val_type *U, int keplerkop,
                          val_type *k, parameters *params, val_type dt,
-                         val_type *G)
+                         val_type *G,tcache_vars *cache_vars)
 {
 #define BASE val_type
 #define HIGH 0
@@ -241,7 +241,7 @@ void  KeplerFlowGFcn     (void GFcn(), int neq, val_type t,
 void  KeplerFlowGFcn_high (void GFcn(), int neq, highprec t,
                            highprec *U, int keplerkop,
                            highprec *k, parameters_high *params, highprec dt,
-                           highprec *G)
+                           highprec *G,tcache_vars_high *cache_vars)
 {
 #define BASE highprec
 #define HIGH 1
@@ -385,8 +385,11 @@ void StartFun_high  (int neq, val_type t, val_type h, solution *w, parameters *p
 /******************************************************************************/
  
 void OutputFun ( ode_sys *system, tcoeffs *method, val_type t, 
-                  val_type h, solution *w, tcache_stat *cache_stat,
-                  parameters *params, toptions *options, FILE *myfile)
+                  val_type h, solution *w, 
+                  tcache_stat *cache_stat,tcache_vars *cache_vars,
+                  parameters *params, toptions *options, 
+                  FILE *myfile, FILE *myfileRC, FILE *myfileER,
+                   highprec *errj)
 {
 #define BASE val_type
 #define HIGH 0
@@ -396,8 +399,11 @@ void OutputFun ( ode_sys *system, tcoeffs *method, val_type t,
 }
 
 void OutputFun_high ( ode_sys *system, tcoeffs *method, val_type t, 
-                       val_type h, solution *w, tcache_stat *cache_stat,
-                       parameters *params, toptions *options, FILE *myfile)
+                       val_type h, solution *w, 
+                       tcache_stat *cache_stat, tcache_vars *cache_vars,
+                       parameters *params, toptions *options, 
+                       FILE *myfile, FILE *myfileRC, FILE *myfileER,
+                        highprec *errj)
 {
 #define BASE highprec
 #define HIGH 1

@@ -1,16 +1,20 @@
 /*------------------------------------------------------------------------------*/
-/*										*/
-/*    File: Problem.c								*/
-/*										*/
+/*										   */
+/*    File: Problem.c							   	   */
+/*										   */
 /*        N-Body equation of the Solar System using Canonical Heliocentric      */
 /*      Coordinates (point mass Newtonian model).                               */
 /*                                                                              */
-/*	    du/dt=k(u)+g(u), where						*/
+/*	    du/dt=k(u)+g(u), where					  	   */
 /*             k(u): uncoupled Keplerians motions                               */
 /*             g(u): interations among planets                                  */
-/*										*/
-/*	Functions:								*/
-/*										*/
+/*										   */
+/*	Functions:							 	   */
+/*										   */
+/*         Heliocentric ==> Barycentric					   */
+/*		ChangeHeltoBar_EMB():  every body in Heliocentric coordinates    */
+/*		ChangeHeltoBar_Moon(): (moon as separate body)		   */
+/*										   */
 /*         HamNbody()= H_K+H_I                                                  */
 /*                                                                              */
 /*         H_K : Kepler Hamiltonian                                             */
@@ -19,22 +23,22 @@
 /*         H_I : Interaction Hamiltonian                                        */
 /*                                                                              */
 /*             1-Problem :   Considering Earth+Moon one body                    */
-/*                 RR1:      Interaction Hamiltonian                  		*/
+/*                 RR1:      Interaction Hamiltonian                            */
 /*                 DRR1:     Gradient of interaction Hamiltonian                */
-/*                 KComp1:   K/Mu Computation                       		*/
-/*         									*/
-/*             2-Problem :   Considering Moon as separate body       		*/
+/*                 KComp1:   K/Mu Computation                       		   */
+/*         									   */
+/*             2-Problem :   Considering Moon as separate body            	   */
 /*                 RR2:      Interaction Hamiltonian                            */
 /*                 DRR2:     Gradient of interaction Hamiltonian                */
-/*                 KComp2:   K/Mu Computation                        	        */
+/*                 KComp2:   K/Mu Computation                        	   */
 /*                 Mysubstract: Implementation of substract                     */
 /*                              to avoid cancellation                           */
-/*         									*/
-/*	   Transformed ODE system of N-Body problem		                */
+/*         									   */
+/*	   Transformed ODE system of N-Body problem		                  */
 /*             NbodyOde:     Transformed equations by                           */
 /*                           Kepler flow's change variables                     */
 /*             NbodyGFcn:    Gradient of interaction Hamiltonian                */
-/*         									*/
+/*         									   */
 /*------------------------------------------------------------------------------*/
 
 
@@ -45,6 +49,292 @@
 #include <def.h>
 #include <Problems.h>
 #include <quadmath.h>
+
+
+/***********************************************************************************/
+/*									              */
+/*    Functions to recovery the barycentric coordinates from                       */
+/*    canonical heliocentric coordinates                                           */
+/*	 - ChangeHeltoBar_EMB:  every body in Heliocentric coordinates      	      */
+/*       - ChangeHeltoBar_Moon:  n as separate body                                */
+/*										      */
+/***********************************************************************************/
+
+
+void ChangeHeltoBar_EMB (int neqH, int nbodyH, val_type *u, solution *U,
+                         val_type *Gm, val_type *mu)
+{
+/* u: barycentric coordinates
+   U: heliocentric coordinates
+*/
+
+  
+/*------ Declarations --------------------------------------------------------*/
+
+     int dim;
+     int i,id,i1,i2,ii,ii1,ii2;
+     int ndH;
+     int nbodyB,ndB;
+     val_type epsilon[nbodyH],MM;        
+
+/* ----- Implementation ------------------------------------------------------*/
+
+     dim=3;
+     
+     ndH=nbodyH*dim;
+     nbodyB=nbodyH+1;
+     ndB=nbodyB*dim;
+     
+
+     MM=Gm[0];
+     for (i=0; i<nbodyH; i++)
+     {
+         epsilon[i]=Gm[i+1]/Gm[0];
+         MM+=Gm[i+1];
+     }
+     
+/* Compute q0, v0 */
+
+    for (id=0; id<dim; id++)
+    {                      
+        u[id]=0.;
+        u[ndB+id]=0.;         
+    }
+
+     for (i=0; i<nbodyH; i++)
+     {
+         i1=i*dim;
+         i2=ndH+i1;
+         
+         for (id=0; id<dim; id++)
+         {                      
+              u[id]+=-Gm[i+1]/MM*U->uu[i1+id];
+              u[ndB+id]+=-epsilon[i]/(1+epsilon[i])*U->uu[i2+id];         
+         }
+     
+     }
+
+     
+/* Compute qi, vi i=1,...,n */
+
+
+     for (i=1; i<nbodyB; i++)
+     {
+         ii=i-1;
+         i1=i*dim;
+         ii1=ii*dim;
+         i2=ndB+i1;
+         ii2=ndH+ii1;
+         
+         for (id=0; id<dim; id++)
+         {                      
+              u[i1+id]=u[id]+U->uu[ii1+id];
+              u[i2+id]=1/(1+epsilon[ii])*U->uu[ii2+id];         
+         }
+     
+     }  
+     
+       
+         
+#ifdef DEBUGX
+    printf("From Hel to Bar-------\n");
+    double qq[dim],vv[dim];
+    
+    printf("Position\n");
+    for (i=0; i<nbodyB; i++)
+    {
+        i1=i*dim;
+        i2=ndB+i1;
+        
+        for (id=0; id<dim; id++)
+        {
+            qq[id]=u[i1+id];
+        }
+            
+        printf("nbody=%i, q=(%.20lg, %.20lg, %.20lg) \n", 
+                i, qq[0],qq[1],qq[2]);
+                
+    }  
+    
+    printf("Velocity\n");
+    for (i=0; i<nbodyB; i++)
+    {
+        i1=i*dim;
+        i2=ndB+i1;
+        
+        for (id=0; id<dim; id++)
+        {
+            vv[id]=u[i2+id];
+        }
+            
+        printf("nbody=%i,  v=(%.20lg, %.20lg, %.20lg)\n", 
+                i, vv[0],vv[1],vv[2]);
+                
+    }  
+#endif
+
+  return;
+  
+
+}
+
+
+
+void ChangeHeltoBar_Moon (int neqH, int nbodyH, val_type *u, solution *U, 
+                          val_type *Gm, val_type *mu)
+{
+/* u: barycentric coordinates
+   U: heliocentric coordinates
+*/
+
+  
+/*------ Declarations --------------------------------------------------------*/
+
+     int dim;
+     int i,id,i1,i2,ii,ii1,ii2;
+     int iE,iM,iE1,iM1,iE2,iM2;
+     int ndH;
+     int nbodyB,ndB;
+     val_type MM;        
+
+/* ----- Implementation ------------------------------------------------------*/
+
+     dim=3;
+         
+     ndH=nbodyH*dim;
+     nbodyB=nbodyH+1;
+     ndB=nbodyB*dim;
+     
+     iE=nbodyH-2;  //Earth index
+     iE1=iE*dim;
+     iE2=ndH+iE1;
+     iM=nbodyH-1;  //Moon index
+     iM1=iM*dim;
+     iM2=ndH+iM1;
+     
+
+     MM=Gm[0];
+     for (i=0; i<nbodyH; i++) MM+=Gm[i+1];
+     
+/* Compute q0, v0 */
+
+    for (id=0; id<dim; id++)
+    {                      
+        u[id]=0.;
+        u[ndB+id]=0.;         
+    }
+
+    /* i=1:n-2*/
+    for (i=0; i<(nbodyH-2); i++)
+    {
+         i1=i*dim;
+         i2=ndH+i1;
+         
+         for (id=0; id<dim; id++)
+         {                      
+              u[id]+=-Gm[i+1]/MM*U->uu[i1+id];        
+              u[ndB+id]+=-mu[i]/Gm[0]*U->uu[i2+id];         
+         }
+    }
+    
+    /* i=n-1 */
+    for (id=0; id<dim; id++)
+    {                  
+         u[id]+=-(Gm[iE+1]+Gm[iM+1])/MM*U->uu[iE1+id];
+         u[ndB+id]+=-mu[i]/Gm[0]*U->uu[iE2+id];         
+    }
+       
+     
+/* Compute qi, vi i=1,...,n-2 */
+
+
+     for (i=1; i<nbodyB-2; i++)
+     {
+         ii=i-1;
+         i1=i*dim;
+         ii1=ii*dim;
+         i2=ndB+i1;
+         ii2=ndH+ii1;
+         
+         for (id=0; id<dim; id++)
+         {                      
+              u[i1+id]=u[id]+U->uu[ii1+id];
+              u[i2+id]= mu[ii]/Gm[ii+1]*U->uu[ii2+id];         
+         }
+     
+     }     
+     
+     
+/* Compute Earth q_{n-1}, v_{n-1}     */ 
+
+    i1=(iE+1)*dim;   // Earth-pos-B
+    i2=ndB+i1;       // Earth-vel-B
+
+
+    for (id=0; id<dim; id++)
+    {        
+         u[i1+id]=u[id]+U->uu[iE1+id]-Gm[iM+1]/Gm[iE+1]*U->uu[iM1+id];
+         u[i2+id]= mu[iE]/(Gm[iE+1]+Gm[iM+1])*U->uu[iE2+id]-mu[iM]/(Gm[iE+1]+Gm[iM+1])*U->uu[iM2+id];         
+    }
+
+
+/* Compute Moon q_{n}, v_{n}  */
+
+    i1=(iM+1)*dim;   // Moon-pos-B
+    i2=ndB+i1;       // Moon-vel-B
+
+    for (id=0; id<dim; id++)
+    {        
+         u[i1+id]=u[id]+U->uu[iE1+id]+U->uu[iM1+id];
+         u[i2+id]= mu[iE]/(Gm[iE+1]+Gm[iM+1])*U->uu[iE2+id]+Gm[iE+1]*mu[iM]/(Gm[iM+1]*(Gm[iE+1]+Gm[iM+1]))*U->uu[iM2+id];         
+    }
+        
+
+         
+     
+#ifdef DEBUGX
+    printf("From Hel to Bar-------iE=%i,iM=%i\n",iE,iM);
+    double qq[dim],vv[dim];
+    
+    printf("Position\n");
+    for (i=0; i<nbodyB; i++)
+    {
+        i1=i*dim;
+        i2=ndB+i1;
+        
+        for (id=0; id<dim; id++)
+        {
+            qq[id]=u[i1+id];
+        }
+            
+        printf("nbody=%i, q=(%.20lg, %.20lg, %.20lg) \n", 
+                i, qq[0],qq[1],qq[2]);
+                
+    }  
+    
+    printf("Velocity\n");
+    for (i=0; i<nbodyB; i++)
+    {
+        i1=i*dim;
+        i2=ndB+i1;
+        
+        for (id=0; id<dim; id++)
+        {
+            vv[id]=u[i2+id];
+        }
+            
+        printf("nbody=%i,  v=(%.20lg, %.20lg, %.20lg)\n", 
+                i, vv[0],vv[1],vv[2]);
+                
+    }  
+#endif
+
+  return;
+  
+  
+  
+
+}
 
 
 /********************************************************************************/
@@ -134,15 +424,14 @@ __float128 Ham_K (int nbody,solution *u, parameters *params)
 
      Pkepler=&params->Pkepler;
      npar=params->numrpar;
-//     k=Pkepler->Khigh;
-//     mu=Pkepler->Muhigh;
+
 
      dim=3;
      neq=nbody*2*dim;
      uu =(__float128 *)malloc(sizeof(__float128)*neq);
      for (i=0; i<neq; i++) 
      {
-       uu[i]=u->uul[i];
+       uu[i]=u->uu[i];
        uu[i]+=u->ee[i];
      
      }
@@ -226,14 +515,12 @@ __float128 RR1 (int neq,solution *u,parameters *params)
 
      Pkepler=&params->Pkepler;
      npar=params->numrpar;
-//     mu=Pkepler->Muhigh;     
-//     Gm=params->rparhigh;
 
      nd=neq/2;
 
      for (i=0; i<neq; i++)
      {
-     	uu[i]=u->uul[i];
+     	uu[i]=u->uu[i];
      	uu[i]+=u->ee[i];
      }
 
@@ -283,9 +570,9 @@ __float128 RR1 (int neq,solution *u,parameters *params)
 
 
 /*-----------------------------------------------------------------------------*/
-/*									       */
-/*                        DRR1			         		       */
-/*									       */
+/*									         */
+/*                        DRR1			         		 */
+/*									         */
 /* ----------------------------------------------------------------------------*/
 
 void DRR1 (int neq, val_type t,val_type *u,val_type *dR,parameters *params)
@@ -313,10 +600,10 @@ void DRR1_high (int neq, highprec t,highprec *u,highprec *dR,parameters_high *pa
 
 
 /***********************************************************************************/
-/*										   */
-/*	KComp1: K/Mu parameters computation					   */
-/*      N-Body problem 								   */
-/*										   */
+/*										      */
+/*	KComp1: K/Mu parameters computation					      */
+/*      N-Body problem 						      	      */
+/*										      */
 /***********************************************************************************/
 
 
@@ -405,8 +692,6 @@ __float128 RR2 (int neq,solution *u,parameters *params)
 
      Pkepler=&params->Pkepler;
      npar=params->numrpar;
-//     mu=Pkepler->Muhigh;     
-//     Gm=params->rparhigh;
 
      nd=neq/2;
 
@@ -417,7 +702,7 @@ __float128 RR2 (int neq,solution *u,parameters *params)
 
      for (i=0; i<neq; i++) 
      {
-         uu[i]=u->uul[i];
+         uu[i]=u->uu[i];
          uu[i]+=u->ee[i];
      }    
      
@@ -728,7 +1013,8 @@ void NbodyGFcn_high (int neq, highprec t,highprec *u,highprec *dR,parameters_hig
 /***********************************************************************************/
 
 void NbodyOde (int neq, val_type t,val_type ttau,
-               val_type *u,val_type *f,parameters *params)
+               val_type *u,val_type *f,parameters *params,
+               tcache_vars *cache_vars)
 {
 
 #define BASE val_type
@@ -742,7 +1028,8 @@ void NbodyOde (int neq, val_type t,val_type ttau,
 }
 
 void NbodyOde_high (int neq, highprec t,highprec ttau,
-                    highprec *u,highprec *f,parameters_high *params)
+                    highprec *u,highprec *f,parameters_high *params,
+                    tcache_vars_high *cache_vars_high)
 {
 
 #define BASE highprec

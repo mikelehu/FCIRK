@@ -39,6 +39,7 @@ int quadFCIRK (int Nkepler,int Moreq,
                  int threads,
                  bool adaptive,
                  bool mixed,
+                 bool monitoring_err,
                  int nrmbits,
                  double *result_array)
 

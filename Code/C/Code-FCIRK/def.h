@@ -24,9 +24,9 @@
 #define STRMAX 256		// Filename maximum string
 #define RTOL pow(10.,-12);	// pow(2.,-40);
 #define ATOL pow(10.,-12);
-#define MAXPARAM 30		// Number of maximum parameters
-#define NU 1000                 // Threshold for adaptive step 100
-#define KMAX 10                 // Max number of substeps (adaptive) 
+#define MAXPARAM 30   		// Number of maximum parameters
+#define NU 1.6                // Threshold for adaptive step 100
+#define KMAX 10               // Max number of substeps (adaptive) 
 
 #define DIR_COEFF "../../../Code/C/CoefficientsData/" // Path for Coefficients 
 
@@ -59,6 +59,7 @@ typedef long double highprec;
 #define ATAN2(x)       atan2(x)
 #define FABS(x)	fabs(x)
 #define FMAX(x,y)      fmax(x,y)
+#define CEIL(x)        ceil(x)
 //
 #define POW_high(x, y)      powl(x, y)
 #define SQRT_high(x)        sqrtl(x)
@@ -71,6 +72,7 @@ typedef long double highprec;
 #define ATAN2_high(x)       atan2l(x)
 #define FABS_high(x)        fabsl(x)
 #define FMAX_high(x,y)      fmaxl(x,y)
+#define CEIL_high(x)        ceill(x)
 //
 #elif PREC == 2 // double-quadruple
 //
@@ -87,8 +89,9 @@ typedef __float128 highprec;
 #define COS(x)         cos(x)
 #define TAN(x)         tan(x)
 #define ATAN2(x)       atan2(x)
-#define FABS(x)	       fabs(x)
+#define FABS(x)	fabs(x)
 #define FMAX(x,y)      fmax(x,y)
+#define CEIL(x)        ceil(x)
 //
 #define POW_high(x, y)      powq(x, y)
 #define SQRT_high(x)        sqrtq(x)
@@ -101,6 +104,7 @@ typedef __float128 highprec;
 #define ATAN2_high(x)       atan2q(x)
 #define FABS_high(x)        fabsq(x)
 #define FMAX_high(x,y)      fmaxq(x,y)
+#define CEIL_high(x)        ceilq(x)
 //
 #elif PREC ==3  // long double-quadruple
 //
@@ -117,8 +121,9 @@ typedef __float128 highprec;
 #define SINCOS(x,s,c)  sincosl(x,s,c)
 #define TAN(x)         tanl(x)
 #define ATAN2(x)       atan2l(x)
-#define FABS(x)	       fabsl(x)
+#define FABS(x)	fabsl(x)
 #define FMAX(x,y)      fmaxl(x,y)
+#define CEIL(x)        ceill(x)
 //
 #define POW_high(x, y)      powq(x, y)
 #define SQRT_high(x)        sqrtq(x)
@@ -131,6 +136,7 @@ typedef __float128 highprec;
 #define ATAN2_high(x)       atan2q(x)
 #define FABS_high(x)        fabsq(x)
 #define FMAX_high(x,y)      fmaxq(x,y)
+#define CEIL_high(x)        ceilq(x)
 //
 #elif PREC == 11           // quadprecision 
 //
@@ -147,8 +153,9 @@ typedef __float128 highprec;
 #define SINCOS(x,s,c)  sincosq(x,s,c)
 #define TAN(x)         tanq(x)
 #define ATAN2(x)       atan2q(x)
-#define FABS(x)	       fabsq(x)
+#define FABS(x)	fabsq(x)
 #define FMAX(x,y)      fmaxq(x,y)
+#define CEIL(x)        ceilq(x)
 //
 #define POW_high(x, y)      powq(x, y)
 #define SQRT_high(x)        sqrtq(x)
@@ -161,14 +168,15 @@ typedef __float128 highprec;
 #define ATAN2_high(x)       atan2q(x)
 #define FABS_high(x)        fabsq(x)
 #define FMAX_high(x,y)      fmaxq(x,y)
+#define CEIL_high(x)        ceilq(x)
 #endif
 
 
-/* ---------------------------------------------------------------------------*/
-/*									      */
-/*	General definitions					       	      */
-/*								              */
-/* ---------------------------------------------------------------------------*/
+/* ----------------------------------------------------------------------------*/
+/*									          */
+/*	General definitions					       	  */
+/*								                 */
+/* ----------------------------------------------------------------------------*/
 
 
 typedef struct tcoeffs
@@ -208,8 +216,7 @@ typedef struct tmethod
 
 typedef struct solution
   {
-//     highprec *uu;
-     val_type *uul;
+     val_type *uu;
      val_type *ee;
 
   } solution;
@@ -220,6 +227,7 @@ typedef struct toptions
      val_type *rtol,*atol;
      int sampling;
      bool adaptive;
+     bool errorsL;
      val_type nrmdigits;         // 2^nrmbits
      char filename[STRMAX];     // Output filename.
      void (*TheOutput)();       // Output function.
@@ -277,9 +285,10 @@ typedef struct parameters_high
 
 typedef struct ode_sys
    {
-     int neq;		        // number of equations.
-     void (*f)();	        // odefun.
-     __float128 (*ham)();	// hamiltonian
+     int neq;		                 // number of equations.
+     void (*f)();	                 // odefun.
+     val_type (*rc_fun)();              // radio convergence function
+     __float128 (*ham)();        	 // hamiltonian
      parameters params;
      void (*ProjFun)();      
      void (*StartFun)();     
@@ -292,6 +301,7 @@ typedef struct ode_sys_high
    {
      int neq;		        // number of equations.
      void (*f)();	        // odefun.
+     val_type (*rc_fun)();              // radio convergence function
      __float128 (*ham)();	// hamiltonian
      parameters_high params;
      int ode;       
@@ -336,7 +346,13 @@ typedef struct tcache_vars
     val_type *z,*li,*fz;
     val_type *zold;
     val_type *DMin;
-    val_type *delta, *avg_delta;          
+    val_type RC;                    
+    val_type MaxRC, MinRC;          
+    val_type RCSum;                 
+    val_type RCSum2;                
+    val_type *KK;                   
+    val_type *ux1,*ux2;   
+    val_type *uB;           // 2022-02-19 Recovery cartesian  
 
     } tcache_vars;
 
@@ -344,7 +360,8 @@ typedef struct tcache_vars_high
  {
      highprec *z,*li,*fz;
      highprec *zold; 
-     highprec *DMin;  
+     highprec *DMin;
+     highprec *ux1,*ux2;  
 
  } tcache_vars_high;
 

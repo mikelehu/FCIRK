@@ -71,14 +71,7 @@
      printf("KeplerFlowGen*******************\n");
 
 
-//     printf("dt=%lg\n",dt);
 
-//     printf("r0=%lg,eta=%lg,alpha=%lg,beta=%lg,gamma=%lg,zeta=%lg\n",
-//             aux->r0,aux->eta,aux->alpha,aux->beta,aux->gamma,aux->zeta);
-//     printf("X=%lg,G0=%lg, G1=%lg, G2=%lg, r=%lg, rinv=%lg\n",
-//             aux->X,aux->GG[0],aux->GG[1],aux->GG[2],aux->r,aux->rinv);
-//     printf("b11=%lg, b12=%lg, b21=%lg, b22=%lg\n", 
-//             aux->b[0],aux->b[1],aux->b[2],aux->b[3]);
 
      printf("q,v=");
      for (i=0; i<dim; i++)
